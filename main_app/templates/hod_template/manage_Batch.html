@@ -1,0 +1,48 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{page_title}}</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example2" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>SN</th>
+                                    <th>Department</th>  <!-- ✅ Added department column -->
+                                    <th>Start Year</th>
+                                    <th>End Year</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for Batch in Batchs %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{Batch.department.dept_name}}</td>  <!-- ✅ Added department -->
+                                    <td>{{Batch.start_year}}</td>
+                                    <td>{{Batch.end_year}}</td>
+                                    <td>
+                                        <a href="{% url 'edit_Batch' Batch.pk %}" class="btn btn-primary">Edit</a> -  <!-- ✅ FIXED: Batch.id -> Batch.pk -->
+                                        <a href="{% url 'delete_Batch' Batch.pk %}" onclick="return confirm('Are you sure you want to delete this batch?')" class="btn btn-danger">Delete</a>   <!-- ✅ FIXED: Batch.id -> Batch.pk -->
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
