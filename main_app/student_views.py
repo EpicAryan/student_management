@@ -13,12 +13,12 @@ from django.views.decorators.csrf import csrf_exempt
 from .forms import *
 from .models import *
 
-
+# Displays the student's dashboard with overall and subject-wise attendance statistics.
 def student_home(request):
     student = get_object_or_404(Student, admin=request.user)
     total_subject = Subject.objects.filter(course=student.course).count()
-    total_attendance = AttendanceReport.objects.filter(student=student).count()
-    total_present = AttendanceReport.objects.filter(student=student, status=True).count()
+    total_attendance = AttendanceReport.objects.filter(student=student).count() #type: ignore
+    total_present = AttendanceReport.objects.filter(student=student, status=True).count() #type: ignore
     if total_attendance == 0:  # Don't divide. DivisionByZero
         percent_absent = percent_present = 0
     else:
@@ -30,9 +30,9 @@ def student_home(request):
     subjects = Subject.objects.filter(course=student.course)
     for subject in subjects:
         attendance = Attendance.objects.filter(subject=subject)
-        present_count = AttendanceReport.objects.filter(
+        present_count = AttendanceReport.objects.filter( #type: ignore
             attendance__in=attendance, status=True, student=student).count()
-        absent_count = AttendanceReport.objects.filter(
+        absent_count = AttendanceReport.objects.filter( #type: ignore
             attendance__in=attendance, status=False, student=student).count()
         subject_name.append(subject.name)
         data_present.append(present_count)
@@ -47,7 +47,6 @@ def student_home(request):
         'data_absent': data_absent,
         'data_name': subject_name,
         'page_title': 'Student Homepage'
-
     }
     return render(request, 'student_template/home_content.html', context)
 

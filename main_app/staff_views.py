@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .forms import *
 from .models import *
 
-
+# Displays the professor's dashboard with stats on students, subjects, leaves, and subject-wise attendance.
 def staff_home(request):  # ✅ FIXED: Function name
     professor = get_object_or_404(Professor, user=request.user)  # ✅ FIXED: user=request.user
     total_students = Student.objects.filter(department=professor.department).count()  # ✅ FIXED: department instead of course

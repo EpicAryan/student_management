@@ -85,6 +85,7 @@ class Semester(models.Model):
     def __str__(self):
         return f"Semester {self.sem_no} - {self.year}"
 
+# Represents a system administrator or HOD linked to a user account and optionally assigned to a specific department.
 class Admin(models.Model):
     # ✅ FIXED: Removed the conflicting user_id field
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
@@ -94,18 +95,18 @@ class Admin(models.Model):
         return f"Admin: {self.user.first_name} {self.user.last_name}"
 
 
-
+#Represents a professor with departmental association, linked user account, and optional admin manager.
 class Professor(models.Model):
-    # ✅ Remove any prof_id if it exists and let Django handle the primary key
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     managed_by = models.ForeignKey(Admin, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"Prof. {self.user.first_name} {self.user.last_name}"
+    
 
+# Represents a student with academic and personal details linked to a user account.
 class Student(models.Model):
-    # ✅ Remove any student_id if it exists and let Django handle the primary key
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     roll_no = models.CharField(max_length=20, unique=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)

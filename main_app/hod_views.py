@@ -13,7 +13,7 @@ from django.views.generic import UpdateView
 from .forms import *
 from .models import *
 
-
+# Displays the admin dashboard with a complete overview of students, professors, subjects, departments, and attendance statistics.
 def admin_home(request):
     total_staff = Professor.objects.all().count()  # ✅ FIXED: Staff -> Professor
     total_students = Student.objects.all().count()
