@@ -101,47 +101,64 @@ def add_student(request):
             email = student_form.cleaned_data.get('email')
             gender = student_form.cleaned_data.get('gender')
             password = student_form.cleaned_data.get('password')
-            department = student_form.cleaned_data.get('department')  # ✅ FIXED: course -> department
-            batch = student_form.cleaned_data.get('batch')  # ✅ FIXED: Batch -> batch
-            roll_no = student_form.cleaned_data.get('roll_no')  # ✅ ADDED: roll_no field
-            year = student_form.cleaned_data.get('year')  # ✅ ADDED: year field
-            semester = student_form.cleaned_data.get('semester')  # ✅ ADDED: semester field
-            passport = request.FILES['profile_pic']
-            fs = FileSystemStorage()
-            filename = fs.save(passport.name, passport)
-            passport_url = fs.url(filename)
+            department = student_form.cleaned_data.get('department')
+            batch = student_form.cleaned_data.get('batch')
+            roll_no = student_form.cleaned_data.get('roll_no')
+            year = student_form.cleaned_data.get('year')
+            semester = student_form.cleaned_data.get('semester')
+            passport = request.FILES.get('profile_pic') 
+            
             try:
+                # Create the CustomUser first
                 user = CustomUser.objects.create_user(
-                    email=email, password=password, user_type=3, first_name=first_name, last_name=last_name, profile_pic=passport_url)
+                    email=email, 
+                    password=password, 
+                    user_type=3, 
+                    first_name=first_name, 
+                    last_name=last_name
+                )
                 user.gender = gender
                 user.address = address
-                user.student.batch = batch  # ✅ FIXED: Batch -> batch
-                user.student.department = department  # ✅ FIXED: course -> department
-                user.student.roll_no = roll_no  # ✅ ADDED
-                user.student.year = year  # ✅ ADDED
-                user.student.semester = semester  # ✅ ADDED
+                
+                # Handle profile picture
+                if passport:
+                    fs = FileSystemStorage()
+                    filename = fs.save(passport.name, passport)
+                    passport_url = fs.url(filename)
+                    user.profile_pic = passport_url
+                
                 user.save()
+                
+                Student.objects.create(
+                    user=user,
+                    roll_no=roll_no,
+                    department=department,
+                    batch=batch,
+                    year=year,
+                    semester=semester
+                )
+                
                 messages.success(request, "Successfully Added")
                 return redirect(reverse('add_student'))
+                
             except Exception as e:
                 messages.error(request, "Could Not Add: " + str(e))
         else:
-            messages.error(request, "Could Not Add: ")
+            messages.error(request, "Could Not Add: Form validation failed")
     return render(request, 'hod_template/add_student_template.html', context)
 
-
 def add_course(request):
-    form = DepartmentForm(request.POST or None)  # ✅ FIXED: CourseForm -> DepartmentForm
+    form = DepartmentForm(request.POST or None)  
     context = {
         'form': form,
-        'page_title': 'Add Department'  # ✅ FIXED: Course -> Department
+        'page_title': 'Add Department'  
     }
     if request.method == 'POST':
         if form.is_valid():
-            dept_name = form.cleaned_data.get('dept_name')  # ✅ FIXED: name -> dept_name
+            dept_name = form.cleaned_data.get('dept_name')  
             try:
-                department = Department()  # ✅ FIXED: Course -> Department
-                department.dept_name = dept_name  # ✅ FIXED: name -> dept_name
+                department = Department()  
+                department.dept_name = dept_name  
                 department.save()
                 messages.success(request, "Successfully Added")
                 return redirect(reverse('add_course'))
@@ -196,12 +213,13 @@ def manage_staff(request):
 
 
 def manage_student(request):
-    students = CustomUser.objects.filter(user_type=3)
+    students = Student.objects.all().select_related('user', 'department', 'year', 'semester', 'batch')  # Optimized query
     context = {
         'students': students,
         'page_title': 'Manage Students'
     }
     return render(request, "hod_template/manage_student.html", context)
+
 
 
 def manage_course(request):
@@ -315,19 +333,19 @@ def edit_student(request, student_id):
 
 
 def edit_course(request, course_id):
-    instance = get_object_or_404(Department, id=course_id)  # ✅ FIXED: Course -> Department
-    form = DepartmentForm(request.POST or None, instance=instance)  # ✅ FIXED: CourseForm -> DepartmentForm
+    instance = get_object_or_404(Department, pk=course_id)  # ✅ FIXED: Use pk instead of id
+    form = DepartmentForm(request.POST or None, instance=instance)
     context = {
         'form': form,
         'course_id': course_id,
-        'page_title': 'Edit Department'  # ✅ FIXED
+        'page_title': 'Edit Department'
     }
     if request.method == 'POST':
         if form.is_valid():
-            dept_name = form.cleaned_data.get('dept_name')  # ✅ FIXED: name -> dept_name
+            dept_name = form.cleaned_data.get('dept_name')
             try:
-                department = Department.objects.get(id=course_id)  # ✅ FIXED: Course -> Department
-                department.dept_name = dept_name  # ✅ FIXED: name -> dept_name
+                department = Department.objects.get(pk=course_id)  # ✅ FIXED: Use pk instead of id
+                department.dept_name = dept_name
                 department.save()
                 messages.success(request, "Successfully Updated")
             except:
@@ -339,7 +357,7 @@ def edit_course(request, course_id):
 
 
 def edit_subject(request, subject_id):
-    instance = get_object_or_404(Subject, id=subject_id)
+    instance = get_object_or_404(Subject, pk=subject_id)
     form = SubjectForm(request.POST or None, instance=instance)
     context = {
         'form': form,
@@ -352,7 +370,7 @@ def edit_subject(request, subject_id):
             semester = form.cleaned_data.get('semester')  # ✅ FIXED: course -> semester
             taught_by = form.cleaned_data.get('taught_by')  # ✅ FIXED: staff -> taught_by
             try:
-                subject = Subject.objects.get(id=subject_id)
+                subject = Subject.objects.get(pk=subject_id)
                 subject.subject_name = subject_name  # ✅ FIXED
                 subject.semester = semester  # ✅ FIXED
                 subject.taught_by.set(taught_by)  # ✅ FIXED: ManyToMany
@@ -389,7 +407,7 @@ def manage_Batch(request):
 
 
 def edit_Batch(request, Batch_id):
-    instance = get_object_or_404(Batch, id=Batch_id)
+    instance = get_object_or_404(Batch, pk=Batch_id)
     form = BatchForm(request.POST or None, instance=instance)
     context = {'form': form, 'Batch_id': Batch_id,
                'page_title': 'Edit Batch'}
@@ -672,25 +690,26 @@ def delete_student(request, student_id):
 
 
 def delete_course(request, course_id):
-    department = get_object_or_404(Department, id=course_id)  # ✅ FIXED: Course -> Department
+    department = get_object_or_404(Department, pk=course_id)  # ✅ FIXED: Use pk instead of id
     try:
         department.delete()
-        messages.success(request, "Department deleted successfully!")  # ✅ FIXED
+        messages.success(request, "Department deleted successfully!")
     except Exception:
         messages.error(
-            request, "Sorry, some students are assigned to this department already. Kindly change the affected student department and try again")  # ✅ FIXED
+            request, "Sorry, some students are assigned to this department already. Kindly change the affected student department and try again")
     return redirect(reverse('manage_course'))
 
 
+
 def delete_subject(request, subject_id):
-    subject = get_object_or_404(Subject, id=subject_id)
+    subject = get_object_or_404(Subject, pk=subject_id)
     subject.delete()
     messages.success(request, "Subject deleted successfully!")
     return redirect(reverse('manage_subject'))
 
 
 def delete_Batch(request, Batch_id):
-    batch = get_object_or_404(Batch, id=Batch_id)
+    batch = get_object_or_404(Batch, pk=Batch_id)
     try:
         batch.delete()
         messages.success(request, "Batch deleted successfully!")
@@ -732,7 +751,7 @@ def manage_year(request):
     return render(request, "hod_template/manage_year.html", context)
 
 def edit_year(request, year_id):
-    instance = get_object_or_404(Year, id=year_id)
+    instance = get_object_or_404(Year, pk=year_id)
     form = YearForm(request.POST or None, instance=instance)
     context = {
         'form': form,
@@ -744,7 +763,7 @@ def edit_year(request, year_id):
             year_no = form.cleaned_data.get('year_no')
             department = form.cleaned_data.get('department')
             try:
-                year = Year.objects.get(id=year_id)
+                year = Year.objects.get(pk=year_id)
                 year.year_no = year_no
                 year.department = department
                 year.save()
@@ -757,7 +776,7 @@ def edit_year(request, year_id):
     return render(request, 'hod_template/edit_year_template.html', context)
 
 def delete_year(request, year_id):
-    year = get_object_or_404(Year, id=year_id)
+    year = get_object_or_404(Year, pk=year_id)
     try:
         year.delete()
         messages.success(request, "Academic Year deleted successfully!")
@@ -798,7 +817,7 @@ def manage_semester(request):
     return render(request, "hod_template/manage_semester.html", context)
 
 def edit_semester(request, semester_id):
-    instance = get_object_or_404(Semester, id=semester_id)
+    instance = get_object_or_404(Semester, pk=semester_id)
     form = SemesterForm(request.POST or None, instance=instance)
     context = {
         'form': form,
@@ -810,7 +829,7 @@ def edit_semester(request, semester_id):
             sem_no = form.cleaned_data.get('sem_no')
             year = form.cleaned_data.get('year')
             try:
-                semester = Semester.objects.get(id=semester_id)
+                semester = Semester.objects.get(pk=semester_id)
                 semester.sem_no = sem_no
                 semester.year = year
                 semester.save()
@@ -823,7 +842,7 @@ def edit_semester(request, semester_id):
     return render(request, 'hod_template/edit_semester_template.html', context)
 
 def delete_semester(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
+    semester = get_object_or_404(Semester, pk=semester_id)
     try:
         semester.delete()
         messages.success(request, "Semester deleted successfully!")
