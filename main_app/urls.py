@@ -94,14 +94,14 @@ urlpatterns = [
     path("staff/attendance/take/", staff_views.staff_take_attendance,
          name='staff_take_attendance'),
     path("staff/attendance/update/", staff_views.staff_update_attendance,
-         name='staff_update_attendance'),
+         name='update_attendance'),
     path("staff/get_students/", staff_views.get_students, name='get_students'),
     path("staff/attendance/fetch/", staff_views.get_student_attendance,
          name='get_student_attendance'),
     path("staff/attendance/save/",
          staff_views.save_attendance, name='save_attendance'),
     path("staff/attendance/update/",
-         staff_views.update_attendance, name='update_attendance'),
+         staff_views.update_attendance, name='staff_update_attendance'),
     path("staff/fcmtoken/", staff_views.staff_fcmtoken, name='staff_fcmtoken'),
     path("staff/view/notification/", staff_views.staff_view_notification,
          name="staff_view_notification"),
@@ -145,6 +145,21 @@ urlpatterns = [
 
      path("staff/fix-profile/<int:user_id>", hod_views.fix_staff_profile, name='fix_staff_profile'),
      path("staff/delete-user/<int:user_id>", hod_views.delete_staff_user, name='delete_staff_user'),
-
+     
+     path('staff/attendance/dates/', staff_views.get_attendance_dates, name='get_attendance_dates'),
+     path('staff/leave/delete/<int:leave_id>/', staff_views.delete_leave_application, name='delete_leave_application'),
+     path('staff/leave/delete-all/', staff_views.delete_all_leave_history, name='delete_all_leave_history'),
+     path('staff/feedback/delete/<int:feedback_id>/', staff_views.delete_staff_feedback, name='delete_staff_feedback'),
+     path('staff/notification/mark-read/<int:notification_id>/', staff_views.mark_notification_read, name='mark_notification_read'),
+     path('staff/notification/mark-all-read/', staff_views.mark_all_notifications_read, name='mark_all_notifications_read'),
+     path('staff/attendance/mark-all-present/', staff_views.mark_all_present, name='mark_all_present'),
+     path('staff/attendance/summary/', staff_views.get_attendance_summary, name='get_attendance_summary'),
+     path('staff/get-todays-attendance-count/', staff_views.get_todays_attendance_count, name='get_todays_attendance_count'),
+     path('staff/attendance/update-save/', staff_views.update_attendance, name='update_attendance'),
+     path('staff/result/edit/', staff_views.staff_edit_result, name='staff_edit_result'),
+     
+     # new admin url
+     
+     path("admin/attendance/summary/", hod_views.get_attendance_summary, name='get_attendance_summary'),
 
 ]

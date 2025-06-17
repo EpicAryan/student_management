@@ -2,24 +2,592 @@
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
 
+{% block custom_css %}
+<style>
+    .edit-subject-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+    }
+    
+    .header-content h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.8rem;
+    }
+    
+    .header-content p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .breadcrumb-nav {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 8px 16px;
+        margin-top: 15px;
+    }
+    
+    .breadcrumb-nav a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .breadcrumb-nav a:hover {
+        color: white;
+        text-decoration: none;
+    }
+    
+    .breadcrumb-nav span {
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0 8px;
+    }
+    
+    .professional-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .professional-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0,0,0,0.12);
+    }
+    
+    .card-header-pro {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .card-title-pro {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-container {
+        padding: 30px 25px;
+    }
+    
+    .info-panel {
+        background: linear-gradient(135deg, #e8f5e8, #d4edda);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #28a745;
+    }
+    
+    .info-panel h6 {
+        margin: 0 0 8px 0;
+        color: #155724;
+        font-weight: 600;
+    }
+    
+    .info-panel p {
+        margin: 0;
+        color: #155724;
+        font-size: 0.9rem;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .section-title {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+    }
+
+    /* Enhanced form styling */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+    
+    .form-control, select.form-control {
+        border: 2px solid #e9ecef !important;
+        border-radius: 8px !important;
+        padding: 12px 15px !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        background-color: white !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 12px center !important;
+        background-size: 16px 12px !important;
+        min-height: 48px !important;
+        line-height: 1.5 !important;
+    }
+
+    select[multiple].form-control {
+        background-image: none !important;
+        padding-right: 15px !important;
+    }
+    
+    .form-control:focus, select.form-control:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+        outline: none !important;
+        transform: translateY(-1px);
+    }
+    
+    .btn-enhanced {
+        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+        border: none !important;
+        border-radius: 25px !important;
+        padding: 12px 30px !important;
+        color: white !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+        min-width: 160px !important;
+        cursor: pointer !important;
+        margin-right: 10px !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    .btn-enhanced:hover:not(:disabled) {
+        background: linear-gradient(135deg, #5a6fd8, #6a5acd) !important;
+        color: white !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+    }
+
+    .btn-enhanced:disabled {
+        background: #6c757d !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* ✅ LOADING SPINNER STYLES */
+    .button-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: button-loading-spinner 1s ease-in-out infinite;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+
+    .btn-enhanced.loading .button-spinner {
+        display: inline-block;
+    }
+
+    .btn-enhanced.loading .button-text {
+        opacity: 0.8;
+    }
+
+    @keyframes button-loading-spinner {
+        from {
+            transform: rotate(0turn);
+        }
+        to {
+            transform: rotate(1turn);
+        }
+    }
+    
+    .btn-secondary-enhanced {
+        background: #6c757d !important;
+        border: none !important;
+        border-radius: 25px !important;
+        padding: 12px 30px !important;
+        color: white !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        text-decoration: none !important;
+        display: inline-block !important;
+    }
+    
+    .btn-secondary-enhanced:hover {
+        background: #5a6268 !important;
+        color: white !important;
+        text-decoration: none !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    .form-footer {
+        background: #f8f9fa;
+        padding: 20px 25px;
+        border-top: 1px solid #e9ecef;
+        text-align: left;
+    }
+    
+    .icon-enhanced {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        color: #667eea;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #e74c3c;
+        font-weight: bold;
+    }
+    
+    .alert-enhanced {
+        border-radius: 8px;
+        padding: 15px 20px;
+        border: none;
+        font-weight: 500;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .edit-subject-header {
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .form-container {
+            padding: 20px 15px;
+        }
+        
+        .btn-enhanced, .btn-secondary-enhanced {
+            width: 100% !important;
+            margin: 5px 0 !important;
+        }
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
 
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <!-- general form elements -->
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
+        
+        <!-- Professional Header -->
+        <div class="edit-subject-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="header-content">
+                        <h2><i class="fas fa-edit mr-3"></i>{{ page_title }}</h2>
+                        <p>Modify subject information and academic settings</p>
+                        <div class="breadcrumb-nav">
+                            <a href="{% url 'manage_subject' %}">
+                                <i class="fas fa-book-open mr-1"></i>Subjects
+                            </a>
+                            <span>/</span>
+                            <span>Edit Subject</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-right">
+                    <div class="header-stats">
+                        <i class="fas fa-cog" style="font-size: 3rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                
+                <!-- Professional Card -->
+                <div class="professional-card">
+                    <div class="card-header-pro">
+                        <h5 class="card-title-pro">
+                            <i class="fas fa-clipboard-list icon-enhanced"></i>
+                            Subject Information
+                        </h5>
                     </div>
 
-                    {% include "main_app/form_template.html" with messages=messages  form=form button_text="Edit Subject"%}
+                    <div class="form-container">
+                        
+                        <!-- Info Panel -->
+                        <div class="info-panel">
+                            <h6><i class="fas fa-info-circle mr-2"></i>Update Subject Details</h6>
+                            <p>Modify the subject information, teaching assignments, and academic parameters. Ensure all changes align with current curriculum requirements.</p>
+                        </div>
+
+                        <!-- Enhanced Form Section -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <i class="fas fa-cog mr-2"></i>Subject Configuration
+                            </div>
+                            
+                            <!-- Include the original form template but enhance it with JavaScript -->
+                            {% include "main_app/form_template.html" with messages=messages form=form button_text="Edit Subject" %}
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Footer -->
+                    <div class="form-footer">
+                        <a href="{% url 'manage_subject' %}" class="btn-secondary-enhanced">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Back to Subjects
+                        </a>
+                    </div>
                 </div>
-                <!-- /.card -->
+
+                <!-- Additional Information Card -->
+                <div class="professional-card mt-4">
+                    <div class="card-header-pro">
+                        <h6 class="card-title-pro">
+                            <i class="fas fa-exclamation-triangle icon-enhanced"></i>
+                            Important Update Notes
+                        </h6>
+                    </div>
+                    <div class="form-container">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-shield-alt mr-2 text-warning"></i>Before Updating</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success mr-2"></i>Verify all information is accurate</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Check faculty availability</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Ensure semester compatibility</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Review department alignment</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-info-circle mr-2 text-info"></i>Update Impact</h6>
+                                <ul class="list-unstyled text-muted">
+                                    <li>• Student enrollment records</li>
+                                    <li>• Faculty teaching assignments</li>
+                                    <li>• Timetable and scheduling</li>
+                                    <li>• Academic reports and transcripts</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
     </div>
 </section>
 {% endblock content %}
+
+{% block custom_js %}
+<script>
+$(document).ready(function() {
+    
+    // ✅ ENHANCE FORM FIELDS: Add professional styling to all form elements
+    function enhanceFormFields() {
+        // Add placeholders to specific fields
+        $('#id_subject_name').attr('placeholder', 'Enter subject name...');
+        $('#id_subject_code').attr('placeholder', 'Enter subject code...');
+        $('#id_semester').attr('placeholder', 'Select semester...');
+        $('#id_subject_type').attr('placeholder', 'Choose subject type...');
+        
+        // ✅ FIXED: Style all buttons with spinner capability
+        $('button[type="submit"], input[type="submit"]').each(function() {
+            $(this).addClass('btn-enhanced');
+            
+            // Wrap button text for spinner functionality
+            const buttonText = $(this).html() || $(this).val();
+            if ($(this).is('button') && !$(this).find('.button-text').length) {
+                $(this).html(`
+                    <span class="button-spinner"></span>
+                    <span class="button-text">${buttonText}</span>
+                `);
+            }
+        });
+        
+        // Add required field indicators
+        $('input[required], select[required], textarea[required]').each(function() {
+            const label = $(this).closest('.form-group').find('label');
+            if (label.length && !label.hasClass('required-field')) {
+                label.addClass('required-field');
+            }
+        });
+        
+        // Add icons to labels
+        $('label').each(function() {
+            const labelText = $(this).text().toLowerCase();
+            let icon = 'fas fa-tag';
+            
+            if (labelText.includes('subject name')) icon = 'fas fa-signature';
+            else if (labelText.includes('code')) icon = 'fas fa-code';
+            else if (labelText.includes('type')) icon = 'fas fa-layer-group';
+            else if (labelText.includes('semester')) icon = 'fas fa-calendar';
+            else if (labelText.includes('taught') || labelText.includes('instructor')) icon = 'fas fa-chalkboard-teacher';
+            
+            if (!$(this).find('i').length) {
+                $(this).prepend(`<i class="${icon} mr-2"></i>`);
+            }
+        });
+    }
+    
+    // ✅ ENHANCE ALERTS: Style Django messages
+    function enhanceAlerts() {
+        $('.alert').each(function() {
+            $(this).addClass('alert-enhanced');
+            
+            // Add icons based on alert type
+            const alertType = $(this).attr('class').match(/alert-(\w+)/);
+            if (alertType) {
+                let icon = 'fas fa-info-circle';
+                switch(alertType[1]) {
+                    case 'success': icon = 'fas fa-check-circle'; break;
+                    case 'danger': case 'error': icon = 'fas fa-exclamation-triangle'; break;
+                    case 'warning': icon = 'fas fa-exclamation-circle'; break;
+                }
+                
+                if (!$(this).find('i').length) {
+                    $(this).prepend(`<i class="${icon} mr-2"></i>`);
+                }
+            }
+        });
+    }
+    
+    // ✅ LOADING SPINNER: Add to form submission
+    function addLoadingSpinner() {
+        $('form').on('submit', function(e) {
+            const $form = $(this);
+            const $btn = $form.find('button[type="submit"], input[type="submit"]');
+            
+            // Basic validation first
+            let hasErrors = false;
+            $form.find('input[required], select[required], textarea[required]').each(function() {
+                const value = $(this).val();
+                
+                if (!value || value.trim() === '') {
+                    hasErrors = true;
+                    $(this).addClass('is-invalid');
+                    $(this).css('border-color', '#dc3545');
+                    
+                    if (!$(this).next('.invalid-feedback').length) {
+                        $(this).after('<div class="invalid-feedback">This field is required.</div>');
+                    }
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).css('border-color', '#28a745');
+                    $(this).next('.invalid-feedback').remove();
+                }
+            });
+            
+            if (hasErrors) {
+                e.preventDefault();
+                
+                // Show error message
+                if (!$('.validation-error-alert').length) {
+                    const errorAlert = `
+                        <div class="alert alert-danger alert-enhanced validation-error-alert">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Please fill in all required fields before updating.
+                        </div>
+                    `;
+                    $('.form-section').prepend(errorAlert);
+                }
+                
+                // Scroll to first error
+                const firstError = $('.is-invalid').first();
+                if (firstError.length) {
+                    $('html, body').animate({
+                        scrollTop: firstError.offset().top - 100
+                    }, 500);
+                    firstError.focus();
+                }
+                
+                return false;
+            } else {
+                // Remove error alert
+                $('.validation-error-alert').remove();
+                
+                // ✅ SHOW LOADING SPINNER
+                if ($btn.is('button')) {
+                    $btn.addClass('loading');
+                    $btn.find('.button-text').text('Updating Subject...');
+                    $btn.prop('disabled', true);
+                } else {
+                    $btn.val('Updating Subject...').prop('disabled', true);
+                }
+                
+                // Re-enable button after delay for server-side errors
+                setTimeout(() => {
+                    if ($btn.is('button')) {
+                        $btn.removeClass('loading');
+                        $btn.find('.button-text').text('Edit Subject');
+                        $btn.prop('disabled', false);
+                    } else {
+                        $btn.val('Edit Subject').prop('disabled', false);
+                    }
+                }, 8000);
+            }
+        });
+        
+        // Remove error styling on input
+        $('input, select, textarea').on('input change', function() {
+            $(this).removeClass('is-invalid');
+            $(this).css('border-color', '');
+            $(this).next('.invalid-feedback').remove();
+            $('.validation-error-alert').remove();
+        });
+    }
+    
+    // ✅ SMOOTH ANIMATIONS: Add focus effects
+    function addAnimations() {
+        $('.form-control').on('focus', function() {
+            $(this).closest('.form-group').addClass('focused');
+        }).on('blur', function() {
+            $(this).closest('.form-group').removeClass('focused');
+        });
+        
+        // Auto-dismiss success messages
+        $('.alert-success').delay(5000).fadeOut('slow');
+    }
+    
+    // Confirmation for navigation away with unsaved changes
+    let formChanged = false;
+    $('input, select, textarea').on('input change', function() {
+        formChanged = true;
+    });
+    
+    $('.btn-secondary-enhanced').on('click', function(e) {
+        if (formChanged) {
+            const confirmed = confirm('You have unsaved changes. Are you sure you want to leave?');
+            if (!confirmed) {
+                e.preventDefault();
+            }
+        }
+    });
+    
+    // Initialize all enhancements
+    setTimeout(() => {
+        enhanceFormFields();
+        enhanceAlerts();
+        addLoadingSpinner();
+        addAnimations();
+    }, 100);
+});
+</script>
+{% endblock custom_js %}

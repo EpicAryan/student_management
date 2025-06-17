@@ -1,191 +1,811 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block custom_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(30, 60, 114, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M0 0h40v40H0V0z'/%3E%3C/g%3E%3C/svg%3E");
+        transform: rotate(45deg);
+    }
+    
+    .header-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .header-content h1 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 2.2rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .header-content p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+    
+    .header-stats {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .stat-summary {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 1.3rem;
+        font-weight: 600;
+        display: block;
+    }
+    
+    /* Enhanced Stat Boxes */
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--card-color);
+    }
+    
+    .stat-card.students {
+        --card-color: linear-gradient(135deg, #17a2b8, #138496);
+    }
+    
+    .stat-card.staff {
+        --card-color: linear-gradient(135deg, #28a745, #20c997);
+    }
+    
+    .stat-card.departments {
+        --card-color: linear-gradient(135deg, #ffc107, #e0a800);
+    }
+    
+    .stat-card.subjects {
+        --card-color: linear-gradient(135deg, #dc3545, #c82333);
+    }
+    
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+        background: var(--card-color);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .stat-number-main {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        color: #6c757d;
+        font-weight: 500;
+        margin-top: 5px;
+    }
+    
+    .stat-footer {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #f1f3f4;
+    }
+    
+    .stat-link {
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .stat-link:hover {
+        color: #2c3e50;
+        text-decoration: none;
+    }
+    
+    .stat-link i {
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-link:hover i {
+        transform: translateX(3px);
+    }
+    
+    /* Professional Chart Cards */
+    .chart-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+    }
+    
+    .chart-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0,0,0,0.12);
+    }
+    
+    .chart-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+        position: relative;
+    }
+    
+    .chart-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .chart-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        color: #1e3c72;
+    }
+    
+    .chart-tools {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .chart-tool-btn {
+        background: none;
+        border: none;
+        color: #6c757d;
+        font-size: 0.9rem;
+        padding: 5px 8px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .chart-tool-btn:hover {
+        background: #e9ecef;
+        color: #2c3e50;
+    }
+    
+    .chart-body {
+        padding: 25px;
+        position: relative;
+    }
+    
+    .chart-container {
+        position: relative;
+        min-height: 300px;
+    }
+    
+    /* Loading State */
+    .chart-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #6c757d;
+        z-index: 1;
+    }
+    
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #1e3c72;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Chart Legends */
+    .custom-legend {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #f1f3f4;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        margin-right: 8px;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .header-content h1 {
+            font-size: 1.8rem;
+        }
+        
+        .stat-card {
+            padding: 20px;
+        }
+        
+        .stat-number-main {
+            font-size: 2rem;
+        }
+        
+        .stat-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+        
+        .chart-body {
+            padding: 15px;
+        }
+        
+        .chart-container {
+            min-height: 250px;
+        }
+        
+        .stat-summary {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .chart-header {
+            padding: 15px 20px;
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+        }
+    }
+    
+    /* Animation Classes */
+    .fade-in {
+        animation: fadeIn 0.6s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .slide-up {
+        animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
 <section class="content">
     <div class="container-fluid">
-        <!-- Small boxes (Stat box) -->
-        <div class="row">
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-info">
-                    <div class="inner">
-                        <h3>{{total_students}}</h3>
-
-                        <p>Total Students</p>
+        
+        <!-- Professional Dashboard Header -->
+        <div class="dashboard-header fade-in">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="header-content">
+                        <h1><i class="fas fa-tachometer-alt mr-3"></i>{{ page_title }}</h1>
+                        <p>Comprehensive overview of your educational institution's key metrics and performance indicators</p>
                     </div>
-                    <div class="icon">
-                        <i class="ion ion-bag"></i>
+                </div>
+                <div class="col-md-4">
+                    <div class="header-stats">
+                        <div class="stat-summary">
+                            <div class="stat-item">
+                                <span class="stat-number">{{ total_students|add:total_staff }}</span>
+                                <span>Total Users</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ total_course }}</span>
+                                <span>Departments</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">{{ total_subject }}</span>
+                                <span>Subjects</span>
+                            </div>
+                        </div>
                     </div>
-                    <a href="{% url 'manage_student' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-
                 </div>
             </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-success">
-                    <div class="inner">
-                        <h3>{{total_staff}}</h3>
-
-                        <p>Total Staff</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-stats-bars"></i>
-                    </div>
-                    <a href="{% url 'manage_staff' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                </div>
-            </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-warning">
-                    <div class="inner">
-                        <h3>{{total_course}}</h3>
-
-                        <p>Total Course</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-person-add"></i>
-                    </div>
-                    <a href="{% url 'manage_course' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                </div>
-            </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-danger">
-                    <div class="inner">
-                        <h3>{{total_subject}}</h3>
-
-                        <p>Total Subjects</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-pie-graph"></i>
-                    </div>
-                    <a href="{% url 'manage_subject' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                </div>
-            </div>
-            <!-- ./col -->
         </div>
-        <!-- /.row -->
-        <!-- Main row -->
+
+        <!-- Enhanced Statistics Cards -->
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card students slide-up">
+                    <div class="stat-header">
+                        <div>
+                            <h3 class="stat-number-main">{{ total_students }}</h3>
+                            <p class="stat-label">Total Students</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <a href="{% url 'manage_student' %}" class="stat-link">
+                            <span>View all students</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card staff slide-up" style="animation-delay: 0.1s">
+                    <div class="stat-header">
+                        <div>
+                            <h3 class="stat-number-main">{{ total_staff }}</h3>
+                            <p class="stat-label">Total Staff</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <a href="{% url 'manage_staff' %}" class="stat-link">
+                            <span>View all staff</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card departments slide-up" style="animation-delay: 0.2s">
+                    <div class="stat-header">
+                        <div>
+                            <h3 class="stat-number-main">{{ total_course }}</h3>
+                            <p class="stat-label">Departments</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <a href="{% url 'manage_course' %}" class="stat-link">
+                            <span>View all departments</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card subjects slide-up" style="animation-delay: 0.3s">
+                    <div class="stat-header">
+                        <div>
+                            <h3 class="stat-number-main">{{ total_subject }}</h3>
+                            <p class="stat-label">Total Subjects</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <a href="{% url 'manage_subject' %}" class="stat-link">
+                            <span>View all subjects</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Charts Section -->
         <div class="row">
             <div class="col-md-6">
-                <!-- LINE CHART -->
-                <div class="card card-secondary">
-                  <div class="card-header">
-                    <h3 class="card-title">{{page_title}}</h3>
-    
-                    <div class="card-tools">
-                      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                      </button>
-                      <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+                <div class="chart-card slide-up" style="animation-delay: 0.4s">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-pie chart-icon"></i>
+                            Staff vs Students Distribution
+                        </h3>
+                        <div class="chart-tools">
+                            <button type="button" class="chart-tool-btn" data-card-widget="collapse" title="Minimize">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="chart-tool-btn" data-card-widget="remove" title="Remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </div>
-                  </div>
-                  <div class="card-body">
-                    <div class="chart">
-                      <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    <div class="chart-body">
+                        <div class="chart-loading" id="pieChartLoading">
+                            <div class="loading-spinner"></div>
+                            <p>Loading chart data...</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pieChart" style="min-height: 300px; height: 300px; max-height: 300px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="custom-legend" id="pieLegend"></div>
                     </div>
-                  </div></div>
-                  <!-- /.card-body -->
                 </div>
-                <div class="col-md-6">
-                    <div class="card card-secondary">
-              <div class="card-header">
-                <h3 class="card-title">{{page_title}}</h3>
-
-                <div class="card-tools">
-                  <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                  </button>
-                  <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="chart">
-                  <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                </div>
-              </div>
-              <!-- /.card-body -->
             </div>
+            
+            <div class="col-md-6">
+                <div class="chart-card slide-up" style="animation-delay: 0.5s">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-bar chart-icon"></i>
+                            Subject-wise Attendance Overview
+                        </h3>
+                        <div class="chart-tools">
+                            <button type="button" class="chart-tool-btn" data-card-widget="collapse" title="Minimize">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="chart-tool-btn" data-card-widget="remove" title="Remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-loading" id="barChartLoading">
+                            <div class="loading-spinner"></div>
+                            <p>Loading chart data...</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="barChart" style="min-height: 300px; height: 300px; max-height: 300px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="custom-legend" id="barLegend"></div>
+                    </div>
                 </div>
-            <!-- right col -->
+            </div>
         </div>
-        <!-- /.row (main row) -->
-    </div><!-- /.container-fluid -->
+    </div>
 </section>
 {% endblock content %}
 
 {% block custom_js %}
-  <script>
-      $(document).ready(function(){
-        var donutData        = {
-            labels: ['Students', 'Staff'],
-            datasets: [
-              {
-                data:[{{total_students}}, {{total_staff}}],
-                backgroundColor : ['#00a65a', '#f39c12',],
-              }
-            ]
-          }
-        var pieChartCanvas = $('#pieChart').get(0).getContext('2d')
-        var pieData        = donutData;
-        var pieOptions     = {
-          maintainAspectRatio : false,
-          responsive : true,
-        }
-        //Create pie or douhnut chart
-        // You can switch between pie and douhnut using the method below.
-        var pieChart = new Chart(pieChartCanvas, {
-          type: 'pie',
-          data: pieData,
-          options: pieOptions      
-        });
-
-        var subject_list = {{ subject_list|safe|escape }};
-        var attendance_list = {{ attendance_list }};
-  
-            var barChartData = {
-      labels  : subject_list,
-      datasets: [
-      {
-        label               : 'Attendance Per Subject',
-        backgroundColor     : '#6c757d',
-        borderColor         : 'rgba(60,141,188,0.8)',
-        pointRadius          : false,
-        pointColor          : '#3b8bba',
-        pointStrokeColor    : 'rgba(60,141,188,1)',
-        pointHighlightFill  : '#fff',
-        pointHighlightStroke: 'rgba(60,141,188,1)',
-        data                : attendance_list
-      }, 
-      
-      ]
-    }
-        var barChartCanvas = $('#barChart').get(0).getContext('2d')
-        var temp0 = barChartData.datasets[0]
-        //var temp1 = areaChartData.datasets[1]
-        barChartData.datasets[0] = temp0
-       // barChartData.datasets[1] = temp0
+<script>
+$(document).ready(function() {
+    console.log('🚀 Initializing Professional Dashboard...');
     
-    var stackedBarChartOptions = {
-      responsive              : true,
-      maintainAspectRatio     : false,
-      scales: {
-        xAxes: [{
-          stacked: true,
-        }],
-        yAxes: [{
-          stacked: true
+    // Hide loading indicators after a brief delay
+    setTimeout(() => {
+        $('#pieChartLoading, #barChartLoading').fadeOut(300);
+    }, 500);
+    
+    // Enhanced Pie Chart Configuration
+    var pieData = {
+        labels: ['Students', 'Staff Members'],
+        datasets: [{
+            data: [{{ total_students }}, {{ total_staff }}],
+            backgroundColor: [
+                'rgba(23, 162, 184, 0.8)',
+                'rgba(40, 167, 69, 0.8)'
+            ],
+            borderColor: [
+                'rgba(23, 162, 184, 1)',
+                'rgba(40, 167, 69, 1)'
+            ],
+            borderWidth: 2,
+            hoverOffset: 10
         }]
-      }
+    };
+    
+    var pieOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: '#1e3c72',
+                borderWidth: 1,
+                cornerRadius: 8,
+                callbacks: {
+                    label: function(context) {
+                        var total = {{ total_students|add:total_staff }};
+                        var percentage = ((context.raw / total) * 100).toFixed(1);
+                        return context.label + ': ' + context.raw + ' (' + percentage + '%)';
+                    }
+                }
+            }
+        },
+        animation: {
+            animateScale: true,
+            animateRotate: true,
+            duration: 1500,
+            easing: 'easeOutQuart'
+        }
+    };
+    
+    var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
+    var pieChart = new Chart(pieChartCanvas, {
+        type: 'doughnut',
+        data: pieData,
+        options: pieOptions
+    });
+    
+    // Create custom legend for pie chart
+    var pieLegendHtml = '';
+    pieData.labels.forEach((label, index) => {
+        var color = pieData.datasets[0].backgroundColor[index];
+        var value = pieData.datasets[0].data[index];
+        var total = {{ total_students|add:total_staff }};
+        var percentage = ((value / total) * 100).toFixed(1);
+        
+        pieLegendHtml += `
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${color}"></div>
+                <span>${label}: ${value} (${percentage}%)</span>
+            </div>
+        `;
+    });
+    $('#pieLegend').html(pieLegendHtml);
+    
+    // Enhanced Bar Chart Configuration
+    var subject_list = {{ subject_list|safe|escape }};
+    var attendance_list = {{ attendance_list }};
+    
+    // Generate dynamic colors for bars
+    function generateColors(count) {
+        var colors = [];
+        var baseColors = [
+            'rgba(30, 60, 114, 0.8)',
+            'rgba(23, 162, 184, 0.8)', 
+            'rgba(40, 167, 69, 0.8)',
+            'rgba(255, 193, 7, 0.8)',
+            'rgba(220, 53, 69, 0.8)',
+            'rgba(111, 66, 193, 0.8)'
+        ];
+        
+        for (var i = 0; i < count; i++) {
+            colors.push(baseColors[i % baseColors.length]);
+        }
+        return colors;
     }
     
-        var barChart = new Chart(barChartCanvas, {
-          type: 'bar', 
-          data: barChartData,
-          options: stackedBarChartOptions
-        })
-      })
-  </script>
+    var barData = {
+        labels: subject_list,
+        datasets: [{
+            label: 'Total Attendance Records',
+            data: attendance_list,
+            backgroundColor: generateColors(subject_list.length),
+            borderColor: generateColors(subject_list.length).map(color => color.replace('0.8', '1')),
+            borderWidth: 2,
+            borderRadius: 5,
+            borderSkipped: false,
+        }]
+    };
+    
+    var barOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: '#1e3c72',
+                borderWidth: 1,
+                cornerRadius: 8,
+                callbacks: {
+                    title: function(context) {
+                        return 'Subject: ' + context[0].label;
+                    },
+                    label: function(context) {
+                        return 'Attendance Records: ' + context.raw;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0,0,0,0.1)',
+                    lineWidth: 1
+                },
+                ticks: {
+                    color: '#6c757d',
+                    font: {
+                        size: 11
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: '#6c757d',
+                    font: {
+                        size: 11
+                    },
+                    maxRotation: 45,
+                    minRotation: 0
+                }
+            }
+        },
+        animation: {
+            duration: 1500,
+            easing: 'easeOutQuart'
+        }
+    };
+    
+    var barChartCanvas = $('#barChart').get(0).getContext('2d');
+    var barChart = new Chart(barChartCanvas, {
+        type: 'bar',
+        data: barData,
+        options: barOptions
+    });
+    
+    // Create custom legend for bar chart
+    $('#barLegend').html(`
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(135deg, #1e3c72, #2a5298)"></div>
+            <span>Attendance records per subject</span>
+        </div>
+    `);
+    
+    // Chart refresh functionality
+    $('.chart-tool-btn[data-card-widget="collapse"]').on('click', function() {
+        var card = $(this).closest('.chart-card');
+        var body = card.find('.chart-body');
+        
+        body.slideToggle(300, function() {
+            // Refresh charts when expanding
+            if (body.is(':visible')) {
+                pieChart.resize();
+                barChart.resize();
+            }
+        });
+        
+        var icon = $(this).find('i');
+        icon.toggleClass('fa-minus fa-plus');
+    });
+    
+    // Chart removal functionality
+    $('.chart-tool-btn[data-card-widget="remove"]').on('click', function() {
+        var card = $(this).closest('.chart-card');
+        card.fadeOut(300, function() {
+            $(this).remove();
+        });
+    });
+    
+    // Add hover effects to stat cards
+    $('.stat-card').hover(
+        function() {
+            $(this).find('.stat-icon').css('transform', 'scale(1.1)');
+        },
+        function() {
+            $(this).find('.stat-icon').css('transform', 'scale(1)');
+        }
+    );
+    
+    // Animate numbers on load
+    $('.stat-number-main').each(function() {
+        var $this = $(this);
+        var target = parseInt($this.text());
+        var current = 0;
+        var increment = target / 50;
+        
+        var timer = setInterval(function() {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            $this.text(Math.floor(current));
+        }, 30);
+    });
+    
+    console.log('✅ Professional Dashboard initialized successfully');
+});
+</script>
 {% endblock custom_js %}

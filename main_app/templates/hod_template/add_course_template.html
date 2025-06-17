@@ -2,24 +2,421 @@
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
 
+{% block custom_css %}
+<style>
+    .department-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 20px rgba(44, 62, 80, 0.15);
+    }
+    
+    .header-content h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.8rem;
+    }
+    
+    .header-content p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .professional-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .professional-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0,0,0,0.12);
+    }
+    
+    .card-header-pro {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .card-title-pro {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-body-enhanced {
+        padding: 30px 25px;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 4px solid #3498db;
+    }
+    
+    .form-group-enhanced {
+        margin-bottom: 25px;
+    }
+    
+    .form-label-enhanced {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+    
+    .form-control-enhanced {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: white;
+        width: 100%;
+    }
+    
+    .form-control-enhanced:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        outline: none;
+        transform: translateY(-1px);
+    }
+    
+    .help-text-enhanced {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 6px;
+        font-style: italic;
+    }
+    
+    .btn-enhanced {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        min-width: 160px;
+        cursor: pointer;
+    }
+    
+    .btn-enhanced:hover {
+        background: linear-gradient(135deg, #2980b9, #21618c);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+    
+    .btn-enhanced:active {
+        transform: translateY(0);
+    }
+    
+    .messages-enhanced {
+        margin-bottom: 20px;
+    }
+    
+    .alert-enhanced {
+        border-radius: 8px;
+        padding: 15px 20px;
+        border: none;
+        font-weight: 500;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .alert-success-enhanced {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+    
+    .alert-danger-enhanced {
+        background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .alert-warning-enhanced {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        color: #856404;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .info-panel {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #2196f3;
+    }
+    
+    .info-panel h6 {
+        margin: 0 0 8px 0;
+        color: #0d47a1;
+        font-weight: 600;
+    }
+    
+    .info-panel p {
+        margin: 0;
+        color: #1565c0;
+        font-size: 0.9rem;
+    }
+    
+    .form-footer {
+        background: #f8f9fa;
+        padding: 20px 25px;
+        border-top: 1px solid #e9ecef;
+        text-align: center;
+    }
+    
+    .icon-enhanced {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        color: #3498db;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #e74c3c;
+        font-weight: bold;
+    }
+    
+    @media (max-width: 768px) {
+        .department-header {
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .header-content h2 {
+            font-size: 1.5rem;
+        }
+        
+        .card-body-enhanced {
+            padding: 20px 15px;
+        }
+        
+        .btn-enhanced {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
 
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <!-- general form elements -->
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>  <!-- This will now show "Add Department" -->
+        
+        <!-- Professional Header -->
+        <div class="department-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="header-content">
+                        <h2><i class="fas fa-building mr-3"></i>{{ page_title }}</h2>
+                        <p>Create and manage academic departments for your institution</p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-right">
+                    <div class="header-stats">
+                        <i class="fas fa-plus-circle" style="font-size: 3rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                
+                <!-- Professional Card -->
+                <div class="professional-card">
+                    <div class="card-header-pro">
+                        <h5 class="card-title-pro">
+                            <i class="fas fa-university icon-enhanced"></i>
+                            Department Information
+                        </h5>
                     </div>
 
-                    {% include "main_app/form_template.html" with messages=messages form=form button_text="Add Department"%}
+                    <div class="card-body-enhanced">
+                        
+                        <!-- Info Panel -->
+                        <div class="info-panel">
+                            <h6><i class="fas fa-info-circle mr-2"></i>Department Setup</h6>
+                            <p>Departments organize subjects and faculty members. Choose a clear, descriptive name for easy identification.</p>
+                        </div>
+
+                        <!-- Enhanced Messages Display -->
+                        {% if messages %}
+                            <div class="messages-enhanced">
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }}-enhanced alert-enhanced alert-dismissible fade show" role="alert">
+                                        {% if message.tags == 'success' %}
+                                            <i class="fas fa-check-circle mr-2"></i>
+                                        {% elif message.tags == 'error' %}
+                                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                                        {% elif message.tags == 'warning' %}
+                                            <i class="fas fa-exclamation-circle mr-2"></i>
+                                        {% else %}
+                                            <i class="fas fa-info-circle mr-2"></i>
+                                        {% endif %}
+                                        {{ message }}
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Enhanced Form -->
+                        <form method="POST" id="departmentForm">
+                            {% csrf_token %}
+                            
+                            <div class="form-section">
+                                <div class="form-group-enhanced">
+                                    <label class="form-label-enhanced required-field" for="{{ form.dept_name.id_for_label }}">
+                                        <i class="fas fa-tag mr-2"></i>Department Name
+                                    </label>
+                                    
+                                    {{ form.dept_name.as_widget }}
+                                    
+                                    {% if form.dept_name.errors %}
+                                        <div class="text-danger mt-2">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                            {{ form.dept_name.errors }}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="help-text-enhanced">
+                                        <i class="fas fa-lightbulb mr-1"></i>
+                                        Enter the full name of the department (e.g., "Computer Science Engineering", "Business Administration")
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form errors display -->
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger-enhanced alert-enhanced">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    {{ form.non_field_errors }}
+                                </div>
+                            {% endif %}
+
+                        </form>
+                    </div>
+
+                    <!-- Enhanced Footer -->
+                    <div class="form-footer">
+                        <button type="submit" form="departmentForm" class="btn-enhanced">
+                            <i class="fas fa-save mr-2"></i>
+                            Add Department
+                        </button>
+                    </div>
                 </div>
-                <!-- /.card -->
+
+                <!-- Additional Information Card -->
+                <div class="professional-card mt-4">
+                    <div class="card-header-pro">
+                        <h6 class="card-title-pro">
+                            <i class="fas fa-question-circle icon-enhanced"></i>
+                            Need Help?
+                        </h6>
+                    </div>
+                    <div class="card-body-enhanced">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-lightbulb mr-2 text-warning"></i>Tips</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success mr-2"></i>Use clear, descriptive names</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Avoid abbreviations if possible</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Follow institutional naming conventions</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-examples mr-2 text-info"></i>Examples</h6>
+                                <ul class="list-unstyled text-muted">
+                                    <li>• Computer Science Engineering</li>
+                                    <li>• Business Administration</li>
+                                    <li>• Mechanical Engineering</li>
+                                    <li>• Liberal Arts & Sciences</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
     </div>
 </section>
 {% endblock content %}
+
+{% block custom_js %}
+<script>
+$(document).ready(function() {
+    // Style the form field to match our enhanced design
+    $('#id_dept_name').addClass('form-control-enhanced').attr('placeholder', 'Enter department name...');
+    
+    // Add form validation and enhancement
+    $('#departmentForm').on('submit', function(e) {
+        const deptName = $('#id_dept_name').val().trim();
+        
+        if (!deptName) {
+            e.preventDefault();
+            
+            // Show error styling
+            $('#id_dept_name').addClass('is-invalid').focus();
+            
+            // Add error message if not exists
+            if (!$('#id_dept_name').next('.invalid-feedback').length) {
+                $('#id_dept_name').after('<div class="invalid-feedback">Department name is required.</div>');
+            }
+            
+            return false;
+        }
+        
+        // Show loading state
+        const $btn = $('.btn-enhanced');
+        const originalText = $btn.html();
+        
+        $btn.html('<i class="fas fa-spinner fa-spin mr-2"></i>Adding Department...').prop('disabled', true);
+        
+        // Re-enable button after a delay (in case of server-side validation errors)
+        setTimeout(() => {
+            $btn.html(originalText).prop('disabled', false);
+        }, 3000);
+    });
+    
+    // Remove error styling on input
+    $('#id_dept_name').on('input', function() {
+        $(this).removeClass('is-invalid');
+        $(this).next('.invalid-feedback').remove();
+    });
+    
+    // Auto-dismiss success messages
+    $('.alert-success-enhanced').delay(5000).fadeOut('slow');
+    
+    // Add smooth focus effects
+    $('.form-control-enhanced').on('focus', function() {
+        $(this).closest('.form-group-enhanced').addClass('focused');
+    }).on('blur', function() {
+        $(this).closest('.form-group-enhanced').removeClass('focused');
+    });
+});
+</script>
+{% endblock custom_js %}

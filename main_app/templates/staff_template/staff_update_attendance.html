@@ -1,206 +1,966 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block custom_css %}
+<style>
+    .update-card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .update-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    
+    .students-container {
+        overflow: hidden;
+        padding: 0 5px;
+    }
+    
+    .student-update-card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 8px 0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        overflow: hidden;
+        transform-origin: center;
+    }
+    .student-update-card.present {
+        border-color: #28a745;
+        background: linear-gradient(45deg, #d4edda, #ffffff);
+    }
+    .student-update-card.absent {
+        border-color: #dc3545;
+        background: linear-gradient(45deg, #f8d7da, #ffffff);
+    }
+    .student-update-card:hover {
+        transform: scale(0.98); 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* ✅ ENHANCED: Professional date info styling */
+    .date-info-container {
+        margin: 20px 0;
+        background: #f8f9fa;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    
+    .date-info-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .date-info-body {
+        padding: 25px;
+        background: white;
+    }
+    
+    .info-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #e9ecef;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .info-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        color: white;
+        font-size: 20px;
+    }
+    
+    .info-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+        color: #495057;
+        font-size: 1.2rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+    
+    /* ✅ FIXED: Button state fixes */
+    .btn-outline-success {
+        color: #28a745;
+        border-color: #28a745;
+        background-color: transparent;
+    }
+    
+    .btn-outline-success:hover,
+    .btn-outline-success.active,
+    .btn-outline-success:active {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+        color: white !important;
+    }
+    
+    .btn-success {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+        color: white !important;
+    }
+    
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+        background-color: transparent;
+    }
+    
+    .btn-outline-danger:hover,
+    .btn-outline-danger.active,
+    .btn-outline-danger:active {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+    }
+    
+    .attendance-percentage {
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.9em;
+    }
+    .percentage-high { background: #d4edda; color: #155724; }
+    .percentage-medium { background: #fff3cd; color: #856404; }
+    .percentage-low { background: #f8d7da; color: #721c24; }
+    
+    .stats-section {
+        background: linear-gradient(45deg, #17a2b8, #117a8b);
+        border-radius: 10px;
+        padding: 20px;
+        color: white;
+        margin-bottom: 20px;
+    }
+    .stats-box {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin: 10px 0;
+    }
+    .stats-box small {
+        color: #6c757d !important;
+        font-weight: 500;
+        display: block;
+        margin-top: 5px;
+    }
+    
+    /* ✅ Dynamic stats styling */
+    .dynamic-stat {
+        transition: all 0.3s ease;
+    }
+    
+    .dynamic-stat.updated {
+        animation: pulse 0.6s ease-in-out;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .change-indicator {
+        font-size: 0.8rem;
+        padding: 2px 6px;
+        border-radius: 10px;
+        margin-left: 5px;
+    }
+    .changed-to-present {
+        background: #d4edda;
+        color: #155724;
+    }
+    .changed-to-absent {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    #alertContainer {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 400px;
+        z-index: 9999;
+    }
+    .search-box {
+        border-radius: 25px;
+        border: 2px solid #e9ecef;
+        padding: 10px 20px;
+    }
+    .search-box:focus {
+        border-color: #17a2b8;
+        box-shadow: 0 0 0 0.2rem rgba(23,162,184,.25);
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
+
+<!-- Alert Container -->
+<div id="alertContainer"></div>
 
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
+        
+        <!-- ✅ ENHANCED: Stats Dashboard with Dynamic Updates -->
+        <div class="row mb-4">
             <div class="col-md-12">
-                <!-- general form elements -->
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
+                <div class="stats-section">
+                    <h5 class="text-white mb-3">
+                        <i class="fas fa-edit mr-2"></i>{{page_title}}
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="stats-box">
+                                <h4 class="text-info dynamic-stat" id="totalSubjectsCount">{{total_subjects|default:"0"}}</h4>
+                                <small>Your Subjects</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stats-box">
+                                <h4 class="text-success dynamic-stat" id="todaysClassesCount">{{todays_classes_taken|default:"0"}}</h4>
+                                <small>Classes Taken Today</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stats-box">
+                                <h4 class="text-warning dynamic-stat" id="availableDatesCount">0</h4>
+                                <small>Available Dates</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Selection Panel -->
+            <div class="col-md-4">
+                <div class="card update-card">
+                    <div class="card-header bg-info text-white">
+                        <h3 class="card-title">
+                            <i class="fas fa-filter mr-2"></i>Select Class
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label><i class="fas fa-book mr-1"></i>Subject</label>
+                            <select name="subject" class="form-control" id='subject'>
+                                <option value="">Select Subject...</option>
+                                {% for subject in subjects %}
+                                <option value="{{subject.pk}}" data-semester="{{subject.semester.sem_no}}">
+                                    {{subject.subject_name}} ({{subject.subject_code}}) - Sem {{subject.semester.sem_no}}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-users mr-1"></i>Batch</label>
+                            <select name="batch" class="form-control" id='batch'>
+                                <option value="">Select Batch...</option>
+                                {% for batch in batches %}
+                                <option value="{{batch.pk}}">
+                                    {{batch.department.dept_name}} ({{batch.start_year}}-{{batch.end_year}})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="button" id='fetch_attendance' class="btn btn-info btn-block">
+                                <i class="fas fa-search mr-2"></i>Find Attendance Records
+                            </button>
+                        </div>
+
+                        <!-- Date Selection -->
+                        <div class="form-group" style="display: none;" id="attendance_block">
+                            <div class="form-group">
+                                <label><i class="fas fa-calendar mr-1"></i>Attendance Date</label>
+                                <select name="attendance_date" id='attendance_date' class="form-control">
+                                </select>
+                                <small class="text-muted">Select a date to view and update attendance</small>
+                            </div>
+                            
+                            <div id="fetch_student_block" style="display: none;">
+                                <button type="button" id='fetch_student' class="btn btn-success btn-block">
+                                    <i class="fas fa-users mr-2"></i>Load Students
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Panel -->
+            <div class="col-md-8">
+                <div class="card update-card" id="studentsPanel" style="display:none;">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="card-title">
+                            <i class="fas fa-user-graduate mr-2"></i>Update Attendance
+                        </h3>
+                        <div class="card-tools">
+                            <span id="studentCount" class="badge badge-light">0 Students</span>
+                        </div>
+                    </div>
+                    
+                    <!-- ✅ ENHANCED: Professional Date Info Section -->
+                    <div id="dateInfoContainer" style="display:none;">
+                        <div class="date-info-container">
+                            <div class="date-info-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-calendar-alt mr-2"></i>Attendance Session Details
+                                </h5>
+                            </div>
+                            <div class="date-info-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="info-card">
+                                            <div class="info-icon">
+                                                <i class="fas fa-calendar-day"></i>
+                                            </div>
+                                            <div class="info-label">Selected Date</div>
+                                            <div class="info-value" id="selectedDate">--</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-card">
+                                            <div class="info-icon">
+                                                <i class="fas fa-user-tie"></i>
+                                            </div>
+                                            <div class="info-label">Originally Marked By</div>
+                                            <div class="info-value" id="markedBy">--</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- /.card-header -->
-                    <!-- form start -->
+                    <!-- Search and Summary -->
                     <div class="card-body">
-
-
-
-                        <div class="form-group">
-                            <label>Subject</label>
-                            <select name="subject" class="form-control" id='subject'>
-                                <option value="">----</option>
-                                {% for subject in subjects  %}
-                                <option value="{{subject.id}}">{{subject.name}}</option>
-                                {% endfor %}
-                            </select>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <input type="text" id="searchStudents" class="form-control search-box" 
+                                       placeholder="🔍 Search students by name or roll number...">
+                            </div>
+                            <div class="col-md-6">
+                                <div id="attendanceSummary" class="text-right">
+                                    <span id="presentCount" class="badge badge-success">0 Present</span>
+                                    <span id="absentCount" class="badge badge-danger ml-2">0 Absent</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Batch</label>
-                            <select name="Batch" class="form-control" id='Batch'>
-                                <option value="">----</option>
-                                {% for Batch in Batchs  %}
-                                <option value="{{Batch.id}}">{{Batch}}</option>
-                                {% endfor %}
-                            </select>
+
+                        <div class="students-container">
+                            <div id='student_data' style="max-height: 500px; overflow-y: auto;"></div>
                         </div>
-                        <div class="form-group"><div  style="display: none;" class="alert alert-danger" id='error_attendance'></div>
-                                <div class="alert alert-success" id='success_attendance' style="display: none;"></div>
-                             <button type="button" id='fetch_attendance' class="btn btn-primary btn-block">Fetch
-                                    Attendance</button>
-                        </div>
-                    <!-- /.card-body -->
-                    
                         
-                               
-                            <div class="form-group" style="display: none;" id="attendance_block">
-                            <div class="form-group">
-                                <label>Attendance Date</label>
-                                <select name="attendance_date" id='attendance_date' class="form-control">
-                               
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                
-                            <div id="fetch_student_block" style="display: none;">
-                                <button type="button" id='fetch_student' class="btn btn-primary btn-block">Fetch Students</button>
-
-                            <!-- <button style="display: none;" type="button" id='save_attendance' class="btn btn-primary btn-block">Save Data</button> -->
-
-                            </div>
-                            <div id='student_data' class="card-footer">
-
-                            </div>
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display:none;">
+                            <button type="button" class="btn btn-warning btn-lg" id="save_attendance">
+                                <i class="fas fa-save mr-2"></i>Update Attendance
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm ml-2" id="resetChanges">
+                                <i class="fas fa-undo mr-1"></i>Reset Changes
+                            </button>
                         </div>
-                    </div>  
+                    </div>
                 </div>
-                <!-- /.card -->
-
             </div>
         </div>
     </div>
 </section>
-{% endblock content %}
 
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" id="confirmModalHeader">
+                <h5 class="modal-title" id="confirmModalTitle">Confirm Action</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="confirmModalBody">
+                Are you sure you want to proceed?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmModalConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle mr-2"></i>Attendance Updated!
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                    <h5 id="successMessage">Attendance has been updated successfully!</h5>
+                </div>
+                <div id="changesDetails"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
 
 {% block custom_js %}
 <script>
-    $(document).ready(function () {
-        $("#fetch_attendance").click(function(){
-            var subject = $("#subject").val()
-            var Batch = $("#Batch").val()
-            if (Batch.length < 1 || subject.length < 1){
-                $("#error_attendance").html("Kindly Choose Both Subject and Batch")
-                $("#attendance_block").hide()
-                $("#error_attendance").show()
-                return false
-            }
-            $.ajax({
-                url: "{% url 'get_attendance' %}",
-                type: 'POST',
-                data:{
-                    subject:subject,
-                    Batch:Batch
-                }
-            
-            }
-
-            ).done(function(response){
-                var json_data = JSON.parse(response)
-                if (json_data.length > 0){
-
-                    var html = "";
-                    for (key in json_data){
-                        html += "<option value='"+json_data[key]['id']+"'>"+json_data[key]['attendance_date']+"</option>"
-                    }
-                    $("#attendance_date").html(html)
-                    $("#error_attendance").hide()
-                    $("#error_attendance").html("")
-                    $("#attendance_block").show()  
-                    $("#fetch_student_block").show()
-                }else{
-                    $("#error_attendance").html("No Attendance Date Found For Specified Data")
-                    $("#error_attendance").show()
-                    $("#attendance_date").html("")
-                    $("#attendance_block").hide()
-
-
-                }
-            }).fail(function(response){
-                alert("Error While Fetching Data")
-                $("#error_attendance").html("")
-                $("#error_attendance").show()
-                $("#attendance_block").hide()
-
-
-            })
-        })
-
-        $("#fetch_student").click(function () {
-            var attendance_date = $("#attendance_date").val()
-            $("#student_data").html(null)
-if (attendance_date.length  == 0){
-    alert("Please Choose A Date");
-    $("#save_attendance").hide()
-
-    return false;
-}
-            $.ajax({
-                url: "{% url 'get_student_attendance' %}",
-                type: 'POST',
-                data: {
-                    attendance_date_id:attendance_date,
-                }
-            }).done(function (response) {
-                var json_data = JSON.parse(response)
-                if (json_data.length < 1) {
-                    alert("No data to display")
-            $("#save_attendance").hide()
-
-                } else {
-            $("#save_attendance").show()
-
-                    var div_data = "<hr/><div class='form-group'></div><div class='form-group'> <label>Student Attendance</label><div class='row'>"
-
-                    for (key in json_data) {
-                        div_data += "<div class='col-lg-3'><div class='form-check custom-control custom-checkbox'><input type='checkbox' class='custom-control-input' " + (json_data[key]['status'] ? "checked='checked'" : "")+" name='student_data[]' value=" + json_data[key]['id'] + " id='checkbox" + json_data[key]['id'] + "' /> <label for='checkbox" + json_data[key]['id'] + "' class='custom-control-label'>" + json_data[key]['name']  + (json_data[key]['status'] ? " [Present] " : " [Absent] ")+"</label></div> </div>"
-                    }
-                    div_data += "</div></div>"
-                    div_data += "<div class='form-group'><button id='save_attendance' class='btn btn-success' type='button'>Save Attendance</button></div>"
-                    $("#student_data").html(div_data)
-                }
-            }).fail(function (response) {
-                alert("Error in fetching students")
-            })
-
-        })
-        $(document).on('click', '#save_attendance', function () {
-            //$(this).attr("disabled","disabled")
-            $(this).text("Updating Attendance Data...")
-            var student_data = $("input[name='student_data[]']").map(function () {
-                if ($(this).is(":checked")){
-                return {'id':$(this).val(), 'status': 1};
-
-                }
-                return {'id':$(this).val(), 'status': 0};
-
-            }).get()
-      
-            student_data = JSON.stringify(student_data)
-            var attendance_date = $("#attendance_date").val()
-            $.ajax({
-                url: "{% url 'update_attendance' %}",
-                type: 'POST',
-                data: {
-                    date: attendance_date,
-                    student_ids: student_data,
-                }
-            }).done(function (response) {
-                if (response == 'OK'){
-                    alert("Updated")
-                }else{
-                    alert("Error. Please try again")
-                }
-                location.reload()
+$(document).ready(function() {
+    let originalData = {};
+    let currentData = {};
+    let confirmCallback = null;
+    
+    // ✅ FIXED: Enhanced dynamic stats update
+    function updateDynamicStats() {
+        // Update today's classes taken count
+        $.ajax({
+            url: "{% url 'get_todays_attendance_count' %}",
+            type: 'POST',
+            success: function(response) {
+                const currentCount = parseInt($('#todaysClassesCount').text());
+                const newCount = response.count || 0;
                 
-            }).fail(function (response) {
-                alert("Error in saving attendance")
-            })
+                if (currentCount !== newCount) {
+                    $('#todaysClassesCount').text(newCount).addClass('updated');
+                    setTimeout(() => {
+                        $('#todaysClassesCount').removeClass('updated');
+                    }, 600);
+                }
+            }
+        });
+    }
+    
+    // Update stats every 30 seconds
+    setInterval(updateDynamicStats, 30000);
+    
+    // Modal confirmation function
+    function showConfirm(title, message, confirmText, callback, type = 'warning') {
+        const headerClass = type === 'danger' ? 'bg-danger text-white' : 'bg-warning text-dark';
+        const confirmClass = type === 'danger' ? 'btn-danger' : 'btn-warning';
+        
+        $('#confirmModalHeader').removeClass().addClass('modal-header').addClass(headerClass);
+        $('#confirmModalTitle').text(title);
+        $('#confirmModalBody').text(message);
+        $('#confirmModalConfirm').removeClass().addClass('btn').addClass(confirmClass).text(confirmText);
+        
+        confirmCallback = callback;
+        $('#confirmModal').modal('show');
+    }
+    
+     $('#confirmModalConfirm').click(function() {
+        $(this).blur(); // <--- ADD THIS LINE to remove focus from the button
+        $('#confirmModal').modal('hide');
+        if (confirmCallback) {
+            confirmCallback();
+            confirmCallback = null;
+        }
+    });
+    
+    // Enhanced alert function
+    function showAlert(message, type, autoHide = true) {
+        const alertId = 'alert_' + Date.now();
+        const alertClass = `alert-${type}`;
+        const iconClass = type === 'success' ? 'fa-check-circle' : 
+                         type === 'warning' ? 'fa-exclamation-triangle' : 
+                         type === 'danger' ? 'fa-times-circle' : 'fa-info-circle';
+        
+        const alertHtml = `
+            <div id="${alertId}" class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                <i class="fas ${iconClass} mr-2"></i>${message}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        `;
+        
+        $('#alertContainer').append(alertHtml);
+        
+        if (autoHide) {
+            setTimeout(() => {
+                $(`#${alertId}`).fadeOut(function() { $(this).remove(); });
+            }, 5000);
+        }
+    }
 
-        })
-    })
+    // Fetch attendance dates
+    $("#fetch_attendance").click(function(){
+        const subject = $("#subject").val();
+        const batch = $("#batch").val();
+        
+        if (!subject || !batch) {
+            showAlert("Please select both Subject and Batch", "warning");
+            return false;
+        }
+        
+        const $btn = $(this);
+        const originalText = $btn.html();
+        $btn.html('<i class="fas fa-spinner fa-spin mr-2"></i>Searching...');
+        $btn.prop('disabled', true);
+        
+        $.ajax({
+            url: "{% url 'get_attendance_dates' %}",
+            type: 'POST',
+            data: { subject: subject, batch: batch }
+        }).done(function(response){
+            const json_data = JSON.parse(response);
+            if (json_data.length > 0) {
+                let html = "";
+                for (let key in json_data) {
+                    html += `<option value="${json_data[key]['date']}">${json_data[key]['display_text']}</option>`;
+                }
+                $("#attendance_date").html(html);
+                $("#attendance_block").show();  
+                $("#fetch_student_block").show();
+                
+                // ✅ FIXED: Update available dates count dynamically
+                const currentCount = parseInt($('#availableDatesCount').text());
+                if (currentCount !== json_data.length) {
+                    $('#availableDatesCount').text(json_data.length).addClass('updated');
+                    setTimeout(() => {
+                        $('#availableDatesCount').removeClass('updated');
+                    }, 600);
+                }
+                
+                showAlert(`Found ${json_data.length} attendance records`, "success");
+            } else {
+                $('#availableDatesCount').text("0");
+                showAlert("No attendance records found for this subject and batch", "warning");
+                $("#attendance_date").html("");
+                $("#attendance_block").hide();
+            }
+        }).fail(function(response){
+            showAlert("Error while fetching attendance dates", "danger");
+            $("#attendance_block").hide();
+            $('#availableDatesCount').text("0");
+        }).always(function() {
+            $btn.html(originalText);
+            $btn.prop('disabled', false);
+        });
+    });
+
+    // Fetch students for selected date
+    $("#fetch_student").click(function () {
+        const attendance_date = $("#attendance_date").val();
+        const subject = $("#subject").val();
+        const batch = $("#batch").val();
+        
+        if (!attendance_date) {
+            showAlert("Please choose a date", "warning");
+            return false;
+        }
+        
+        const $btn = $(this);
+        const originalText = $btn.html();
+        $btn.html('<i class="fas fa-spinner fa-spin mr-2"></i>Loading...');
+        $btn.prop('disabled', true);
+        
+        $.ajax({
+            url: "{% url 'get_student_attendance' %}",
+            type: 'POST',
+            data: {
+                attendance_date: attendance_date,
+                subject: subject,
+                batch: batch
+            }
+        }).done(function (response) {
+            const json_data = JSON.parse(response);
+            if (json_data.length < 1) {
+                showAlert("No student data found", "warning");
+            } else {
+                renderStudents(json_data);
+                $("#studentsPanel").slideDown();
+                $("#dateInfoContainer").show();
+                $("#actionButtons").show();
+                
+                // Set date info
+                const selectedDateObj = new Date(attendance_date);
+                $("#selectedDate").text(selectedDateObj.toLocaleDateString('en-US', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                }));
+                
+                updateSummary();
+                showAlert(`Loaded ${json_data.length} students for update`, "success");
+            }
+        }).fail(function (response) {
+            showAlert("Error loading students", "danger");
+        }).always(function() {
+            $btn.html(originalText);
+            $btn.prop('disabled', false);
+        });
+    });
+
+    // Render students with update interface
+    function renderStudents(students) {
+        let html = '';
+        originalData = {};
+        currentData = {};
+        
+        students.forEach((student, index) => {
+            const percentageClass = getPercentageClass(student.attendance_percentage);
+            const cardClass = student.status ? 'student-update-card present' : 'student-update-card absent';
+            
+            // Store original data
+            originalData[student.id] = student.status;
+            currentData[student.id] = student.status;
+            
+            html += `
+                <div class="${cardClass}" data-student-id="${student.id}" data-original-status="${student.status}">
+                    <div class="row align-items-center">
+                        <div class="col-md-1">
+                            ${student.profile_pic ? 
+                                `<img src="${student.profile_pic}" class="rounded-circle" width="40" height="40" alt="Avatar">` :
+                                `<div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white" style="width:40px;height:40px;"><i class="fas fa-user"></i></div>`
+                            }
+                        </div>
+                        <div class="col-md-4">
+                            <strong>${student.name}</strong>
+                            <br>
+                            <small class="text-muted">
+                                <i class="fas fa-chart-line mr-1"></i>${student.total_classes} classes
+                                <span class="ml-2"><i class="fas fa-user mr-1"></i>By: ${student.marked_by}</span>
+                            </small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <span class="attendance-percentage ${percentageClass}">
+                                ${student.attendance_percentage}%
+                            </span>
+                            <br><small class="text-muted">${student.marked_at}</small>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm ${student.status ? 'btn-success' : 'btn-outline-success'} present-btn" data-status="true">
+                                    <i class="fas fa-check"></i> Present
+                                </button>
+                                <button type="button" class="btn btn-sm ${!student.status ? 'btn-danger' : 'btn-outline-danger'} absent-btn" data-status="false">
+                                    <i class="fas fa-times"></i> Absent
+                                </button>
+                            </div>
+                            <span class="change-indicator" id="change-${student.id}" style="display:none;"></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        $("#student_data").html(html);
+        $("#studentCount").text(`${students.length} Students`);
+        
+        // Set marked by info
+        if (students.length > 0) {
+            $("#markedBy").text(students[0].marked_by);
+        }
+    }
+
+    // ✅ FIXED: Handle status changes with proper button states
+    $(document).on('click', '.present-btn, .absent-btn', function() {
+        const $card = $(this).closest('.student-update-card');
+        const studentId = $card.data('student-id');
+        const newStatus = $(this).data('status');
+        const originalStatus = $card.data('original-status');
+        
+        // ✅ FIXED: Proper button state management
+        const $presentBtn = $card.find('.present-btn');
+        const $absentBtn = $card.find('.absent-btn');
+        
+        // Reset both buttons to outline state
+        $presentBtn.removeClass('btn-success').addClass('btn-outline-success');
+        $absentBtn.removeClass('btn-danger').addClass('btn-outline-danger');
+        
+        // Set the clicked button to solid state
+        if (newStatus) {
+            $presentBtn.removeClass('btn-outline-success').addClass('btn-success');
+        } else {
+            $absentBtn.removeClass('btn-outline-danger').addClass('btn-danger');
+        }
+        
+        // Update card appearance
+        $card.removeClass('present absent').addClass(newStatus ? 'present' : 'absent');
+        
+        // Track changes
+        currentData[studentId] = newStatus;
+        
+        // Show change indicator
+        const $indicator = $(`#change-${studentId}`);
+        if (originalStatus !== newStatus) {
+            const changeText = newStatus ? 'Changed to Present' : 'Changed to Absent';
+            const changeClass = newStatus ? 'changed-to-present' : 'changed-to-absent';
+            $indicator.text(changeText).removeClass('changed-to-present changed-to-absent').addClass(changeClass).show();
+        } else {
+            $indicator.hide();
+        }
+        
+        updateSummary();
+    });
+
+    // Search functionality
+    $("#searchStudents").on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        $('.student-update-card').each(function() {
+            const studentName = $(this).find('strong').text().toLowerCase();
+            $(this).toggle(studentName.includes(searchTerm));
+        });
+        updateSummary();
+    });
+
+    // ✅ FIXED: Reset changes with proper button states
+    $("#resetChanges").click(function() {
+        showConfirm(
+            'Reset Changes',
+            'Are you sure you want to reset all changes? This will revert all modifications back to their original state.',
+            'Yes, Reset All',
+            function() {
+                $('.student-update-card').each(function() {
+                    const studentId = $(this).data('student-id');
+                    const originalStatus = $(this).data('original-status');
+                    
+                    // Reset to original status
+                    currentData[studentId] = originalStatus;
+                    
+                    // Update card class
+                    $(this).removeClass('present absent').addClass(originalStatus ? 'present' : 'absent');
+                    
+                    // ✅ FIXED: Proper button state reset
+                    const $presentBtn = $(this).find('.present-btn');
+                    const $absentBtn = $(this).find('.absent-btn');
+                    
+                    // Reset both buttons to outline state first
+                    $presentBtn.removeClass('btn-success').addClass('btn-outline-success');
+                    $absentBtn.removeClass('btn-danger').addClass('btn-outline-danger');
+                    
+                    // Set the correct button to solid state based on original status
+                    if (originalStatus) {
+                        $presentBtn.removeClass('btn-outline-success').addClass('btn-success');
+                    } else {
+                        $absentBtn.removeClass('btn-outline-danger').addClass('btn-danger');
+                    }
+                    
+                    // Hide change indicator
+                    $(`#change-${studentId}`).hide();
+                });
+                
+                updateSummary();
+                showAlert("All changes have been reset", "info");
+            },
+            'warning'
+        );
+    });
+
+    // ✅ IMPROVED: Save attendance updates with better error handling
+    $("#save_attendance").click(function() {
+        // Check if any changes were made
+        let hasChanges = false;
+        for (let studentId in currentData) {
+            if (currentData[studentId] !== originalData[studentId]) {
+                hasChanges = true;
+                break;
+            }
+        }
+        
+        if (!hasChanges) {
+            showAlert("No changes were made to save", "warning");
+            return;
+        }
+        
+        // Count changes for confirmation
+        let changeCount = 0;
+        for (let studentId in currentData) {
+            if (currentData[studentId] !== originalData[studentId]) {
+                changeCount++;
+            }
+        }
+        
+         showConfirm(
+            'Save Changes',
+            `Are you sure you want to save ${changeCount} attendance change(s)? This action cannot be undone.`,
+            'Yes, Save Changes',
+            function() {
+                const studentData = [];
+                for (let studentId in currentData) {
+                    studentData.push({
+                        id: parseInt(studentId),
+                        status: currentData[studentId] ? 1 : 0
+                    });
+                }
+                
+                const $btn = $("#save_attendance");
+                const originalText = $btn.html();
+                $btn.html('<i class="fas fa-spinner fa-spin mr-2"></i>Updating...');
+                $btn.prop('disabled', true);
+                
+                const requestData = {
+                    date: $("#attendance_date").val(),
+                    student_ids: JSON.stringify(studentData),
+                    subject: $("#subject").val()
+                };
+                
+                console.log('Sending data:', requestData); // ✅ Debug log
+                
+                $.ajax({
+                    url: "{% url 'update_attendance' %}",
+                    type: 'POST',
+                    data: requestData,
+                    dataType: 'json', // ✅ IMPORTANT: Specify dataType (not datatype)
+                    timeout: 30000,
+                    success: function(response) { // ✅ FIXED: Check response structure
+                        console.log('Raw response:', response); // ✅ Debug log
+                        
+                        // ✅ Check if response exists and has expected structure
+                        if (!response) {
+                            showAlert("Empty response from server", "danger");
+                            return;
+                        }
+                        
+                        if (response.success) {
+                            $("#successMessage").text(response.message);
+                            
+                            // ✅ Check if changes array exists before using it
+                            if (response.changes && Array.isArray(response.changes)) {
+                                let changesHtml = '<h6>Changes Made:</h6><ul class="list-group">';
+                                response.changes.forEach(change => {
+                                    changesHtml += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>${change.student}</span>
+                                        <span><span class="badge badge-secondary">${change.from}</span> → <span class="badge ${change.to === 'Present' ? 'badge-success' : 'badge-danger'}">${change.to}</span></span>
+                                    </li>`;
+                                });
+                                changesHtml += '</ul>';
+                                
+                                if (response.errors && response.errors.length > 0) {
+                                    changesHtml += '<h6 class="mt-3">Errors:</h6><ul class="list-group">';
+                                    response.errors.forEach(error => {
+                                        changesHtml += `<li class="list-group-item list-group-item-warning">${error}</li>`;
+                                    });
+                                    changesHtml += '</ul>';
+                                }
+                                
+                                $("#changesDetails").html(changesHtml);
+                            } else {
+                                $("#changesDetails").html('<p>Update completed successfully!</p>');
+                            }
+                            
+                            $("#successModal").modal('show');
+                            
+                            // Update original data to current data
+                            originalData = {...currentData};
+                            
+                            // Hide change indicators
+                            $('.change-indicator').hide();
+                            
+                        } else {
+                            const errorMsg = response.error || "Unknown error occurred";
+                            showAlert("Error: " + errorMsg, "danger");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('AJAX Error Details:', {
+                            xhr: xhr,
+                            status: status,
+                            error: error,
+                            responseText: xhr.responseText
+                        }); // ✅ Enhanced debug logging
+                        
+                        let errorMsg = "Error updating attendance";
+                        
+                        if (xhr.status === 403) {
+                            errorMsg = "CSRF verification failed. Please refresh the page and try again.";
+                        } else if (xhr.status === 400) {
+                            try {
+                                const errorResponse = JSON.parse(xhr.responseText);
+                                errorMsg = errorResponse.error || "Bad request";
+                            } catch (e) {
+                                errorMsg = "Bad request: " + xhr.responseText;
+                            }
+                        } else if (xhr.status === 500) {
+                            errorMsg = "Server error. Please try again later.";
+                        } else if (status === 'timeout') {
+                            errorMsg = "Request timed out. Please try again.";
+                        } else {
+                            errorMsg += ": " + (error || "Unknown error");
+                        }
+                        
+                        showAlert(errorMsg, "danger");
+                    },
+                    complete: function() {
+                        $btn.html(originalText);
+                        $btn.prop('disabled', false);
+                    }
+                });
+            },
+            'warning'
+        );
+    });
+
+    // Helper functions
+    function updateSummary() {
+        let presentCount = 0;
+        let absentCount = 0;
+        
+        $('.student-update-card:visible').each(function() {
+            const studentId = $(this).data('student-id');
+            if (currentData[studentId]) {
+                presentCount++;
+            } else {
+                absentCount++;
+            }
+        });
+        
+        $("#presentCount").text(`${presentCount} Present`);
+        $("#absentCount").text(`${absentCount} Absent`);
+    }
+
+    function getPercentageClass(percentage) {
+        if (percentage >= 75) return 'percentage-high';
+        if (percentage >= 60) return 'percentage-medium';
+        return 'percentage-low';
+    }
+});
 </script>
 {% endblock custom_js %}

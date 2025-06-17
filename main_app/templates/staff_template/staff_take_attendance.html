@@ -1,154 +1,760 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block custom_css %}
+<style>
+    .attendance-card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .attendance-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    .student-card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .student-card.present {
+        border-color: #28a745;
+        background: linear-gradient(45deg, #d4edda, #ffffff);
+    }
+    .student-card.absent {
+        border-color: #dc3545;
+        background: linear-gradient(45deg, #f8d7da, #ffffff);
+    }
+    .student-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .attendance-percentage {
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.9em;
+    }
+    .percentage-high { background: #d4edda; color: #155724; }
+    .percentage-medium { background: #fff3cd; color: #856404; }
+    .percentage-low { background: #f8d7da; color: #721c24; }
+    .quick-actions {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border-radius: 10px;
+        padding: 20px;
+        color: white;
+        margin-bottom: 20px;
+    }
+    .stats-box {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin: 10px 0;
+    }
+    .stats-box small {
+        color: #6c757d !important;
+        font-weight: 500;
+        display: block;
+        margin-top: 5px;
+    }
+    .stats-box h4 {
+        font-weight: bold;
+        margin-bottom: 0;
+    }
+    .student-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #dee2e6;
+    }
+    .search-box {
+        border-radius: 25px;
+        border: 2px solid #e9ecef;
+        padding: 10px 20px;
+    }
+    .search-box:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    .bulk-actions {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 15px 0;
+    }
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    .already-marked {
+        background: #6c757d;
+        color: white;
+    }
+    .view-only-mode {
+        background-color: #f8f9fa;
+        border: 2px dashed #6c757d;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 20px 0;
+    }
+    
+    .view-only-badge {
+        background-color: #17a2b8;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .student-card.view-only {
+        opacity: 0.85;
+        pointer-events: none;
+    }
+    
+    .date-status {
+        margin-top: 5px;
+        font-size: 0.8rem;
+    }
+    
+    .past-date {
+        color: #dc3545;
+    }
+    
+    .current-date {
+        color: #28a745;
+    }
+    
+    .future-date {
+        color: #17a2b8;
+    }
+    
+    #alertContainer {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 350px;
+        z-index: 9999;
+    }
+    .student-card.neutral {
+        border-left-color: #6c757d;
+        background-color: #f8f9fa;
+    }
+
+    .student-card.neutral:hover {
+        border-left-color: #495057;
+    }
+    .badge-secondary {
+        background-color: #6c757d !important;
+    }
+
+    .student-card:not(.present):not(.absent):not(.neutral) {
+        border-left-color: #dee2e6;
+        background-color: #ffffff;
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
+<div id="alertContainer"></div>
 
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
+        
+        <!-- Stats Dashboard -->
+        <div class="row mb-4">
             <div class="col-md-12">
-                <!-- general form elements -->
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
-                    </div>
-
-                    <!-- /.card-header -->
-                    <!-- form start -->
-                    <div class="card-body">
-
-
-
-                        <div class="form-group">
-                            <label>Subject</label>
-                            <select name="subject" class="form-control" id='subject'>
-                                <option value="">----</option>
-                                {% for subject in subjects  %}
-                                <option value="{{subject.id}}">{{subject.name}}</option>
-                                {% endfor %}
-                            </select>
+                <div class="quick-actions">
+                    <h5 class="text-white mb-3">
+                        <i class="fas fa-chalkboard-teacher mr-2"></i>{{page_title}}
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="stats-box">
+                                <h4 class="text-primary">{{subjects.count}}</h4>
+                                <small>Your Subjects</small>
+                            </div>
                         </div>
-
-
-                        <div class="form-group">
-                            <label>Batch Year</label>
-                            <select name="Batch" id='Batch' class="form-control">
-                                <option value="">----</option>
-                                {% for Batch in Batchs  %}
-                                <option value="{{Batch.id}}">{{Batch}} </option>
-                                {% endfor %}
-                            </select>
+                        <div class="col-md-4">
+                            <div class="stats-box">
+                                <h4 class="text-success">{{todays_classes}}</h4>
+                                <small>Classes Taken Today</small>
+                            </div>
                         </div>
-                        {% comment %}
-
-                        <div>
-                            <label>Attendance Date</label>
-                            <input type="date" class='form-control' name="attendance_date" id='attendance_date' id="">
-                        </div>
-                        {% endcomment %}
-
-                    </div>
-                    <!-- /.card-body -->
-
-                    <div class="card-footer">
-                        <button type="button" id='fetch_student' class="btn btn-primary btn-block">Fetch
-                            Students</button>
-                        <div class="form-group" id="student_data">
-
+                        <div class="col-md-4">
+                            <div class="stats-box" id="summaryStats">
+                                <h4 class="text-info">--</h4>
+                                <small>Average Attendance</small>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- /.card -->
+            </div>
+        </div>
 
+        <div class="row">
+            <!-- Selection Panel -->
+            <div class="col-md-4">
+                <div class="card attendance-card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="card-title">
+                            <i class="fas fa-cogs mr-2"></i>Class Setup
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label><i class="fas fa-book mr-1"></i>Subject</label>
+                            <select name="subject" class="form-control" id='subject'>
+                                <option value="">Select Subject...</option>
+                                {% for subject in subjects %}
+                                <option value="{{subject.pk}}" data-semester="{{subject.semester.sem_no}}" data-year="{{subject.semester.year.year_no}}">
+                                    {{subject.subject_name}} ({{subject.subject_code}}) - Sem {{subject.semester.sem_no}}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-users mr-1"></i>Batch</label>
+                            <select name="batch" id='batch' class="form-control">
+                                <option value="">Select Batch...</option>
+                                {% for batch in batches %}
+                                <option value="{{batch.pk}}">
+                                    {{batch.department.dept_name}} ({{batch.start_year}}-{{batch.end_year}})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar mr-1"></i>Date</label>
+                            <!-- ✅ Allow selecting past dates but with max future limit -->
+                            <input type="date" class="form-control" id="attendance_date" 
+                                   value="{{today|date:'Y-m-d'}}" 
+                                   max="{{today|date:'Y-m-d'}}">
+                            <small class="text-muted">Select current or past dates to view attendance</small>
+                        </div>
+
+                        <button type="button" id='fetch_student' class="btn btn-primary btn-block">
+                            <i class="fas fa-search mr-2"></i>Load Students
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Panel -->
+            <div class="col-md-8">
+                <div class="card attendance-card" id="studentsPanel" style="display:none;">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="card-title">
+                            <i class="fas fa-user-graduate mr-2"></i>Students
+                        </h3>
+                        <div class="card-tools">
+                            <span id="studentCount" class="badge badge-light">0 Students</span>
+                            <!-- ✅ NEW: View-only indicator when needed -->
+                            <span id="viewOnlyBadge" class="view-only-badge ml-2" style="display:none;">
+                                <i class="fas fa-eye mr-1"></i>View Only
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- ✅ NEW: View-only mode notice -->
+                    <div id="viewOnlyNotice" class="view-only-mode" style="display:none;">
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <strong>View-Only Mode:</strong> 
+                            <span id="viewOnlyReason">You cannot modify attendance for this date.</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Bulk Actions -->
+                    <div class="bulk-actions" id="bulkActionContainer">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="text" id="searchStudents" class="form-control search-box" 
+                                       placeholder="🔍 Search students by name or roll number...">
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <button type="button" class="btn btn-success btn-sm" id="markAllPresent">
+                                    <i class="fas fa-check-double mr-1"></i>Mark All Present
+                                </button>
+                                <button type="button" class="btn btn-warning btn-sm" id="markAllAbsent">
+                                    <i class="fas fa-times mr-1"></i>Mark All Absent
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                        <div id="student_list"></div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4" id="actionButtons" style="display:none;">
+                            <button type="button" class="btn btn-success btn-lg" id="save_attendance">
+                                <i class="fas fa-save mr-2"></i>Save Attendance
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
-{% endblock content %}
 
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle mr-2"></i>Attendance Saved!
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h5 id="successMessage">Attendance has been saved successfully!</h5>
+                <div id="attendanceStats"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
 
 {% block custom_js %}
 <script>
-    $(document).ready(function () {
-
-       
-        $("#fetch_student").click(function () {
-            var subject = $("#subject").val()
-            var Batch = $("#Batch").val()
-            $("#student_data").html(null)
-if (subject.length  == 0 || Batch.length == 0){
-    alert("Please select Batch and subject");
-    return false;
-}
-            $.ajax({
-                url: "{% url 'get_students' %}",
-                type: 'POST',
-                data: {
-                    subject: subject,
-                    Batch: Batch
-                }
-            }).done(function (response) {
-                var json_data = JSON.parse(response)
-                if (json_data.length < 1) {
-                    alert("No data to display")
-                } else {
-                    var div_data = "<hr/><div class='form-group'></div><div class='form-group'> <label>Attendance Date</label><input type='date' class='form-control' name='attendance_date' id='attendance_date' ><div class='row'>"
-
-                    for (key in json_data) {
-                        div_data += "<div class='col-lg-3'><div class='form-check custom-control custom-checkbox'><input type='checkbox' class='custom-control-input' checked='checked' name='student_data[]' value=" + json_data[key]['id'] + " id='checkbox" + json_data[key]['id'] + "' /> <label for='checkbox" + json_data[key]['id'] + "' class='custom-control-label'>" + json_data[key]['name'] + "</label></div> </div>"
-                    }
-                    div_data += "</div></div>"
-                    div_data += "<div class='form-group'><button id='save_attendance' class='btn btn-success' type='button'>Save Attendance</button></div>"
-                    $("#student_data").html(div_data)
-                }
-            }).fail(function (response) {
-                alert("Error in fetching students")
-            })
-
-
-            $(document).on('click', '#save_attendance', function () {
-                $(this).attr("disabled","disabled")
-                $(this).text("Saving Attendance Data...")
-                var student_data = $("input[name='student_data[]']").map(function () {
-                    if ($(this).is(":checked")){
-                    return {'id':$(this).val(), 'status': 1};
+$(document).ready(function() {
+    let studentsData = [];
+    let currentSubject = null;
+    let currentBatch = null;
+    let isViewOnly = false;
     
-                    }
-                    return {'id':$(this).val(), 'status': 0};
+    // ✅ Set today's date as default
+    const today = new Date().toISOString().split('T')[0];
+    $('#attendance_date').val(today);
     
-                }).get()
-                var attendance_date = $('#attendance_date').val()
-                if (attendance_date.length < 10){
-                    alert("Select date")
-                    return false;
-                }
-                student_data = JSON.stringify(student_data)
-                $.ajax({
-                    url: "{% url 'save_attendance' %}",
-                    type: 'POST',
-                    data: {
-                        date: attendance_date,
-                        student_ids: student_data,
-                        subject: subject,
-                        Batch: Batch
-            
-                    }
-                }).done(function (response) {
-                    if (response == 'OK'){
-                        alert("Saved")
-                    }else{
-                        alert("Error. Please try again")
-                    }
-                    location.reload()
+    // ✅ IMPROVED: Single alert function that manages all alerts
+    function showAlert(message, type, autoHide = true) {
+        // Generate unique ID for this alert
+        const alertId = 'alert_' + Date.now();
+        
+        const alertClass = `alert-${type}`;
+        const iconClass = type === 'success' ? 'fa-check-circle' : 
+                         type === 'warning' ? 'fa-exclamation-triangle' : 
+                         type === 'danger' ? 'fa-times-circle' : 'fa-info-circle';
+        
+        const alertHtml = `
+            <div id="${alertId}" class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                <i class="fas ${iconClass} mr-2"></i>${message}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        `;
+        
+        // Add to alert container
+        $('#alertContainer').append(alertHtml);
+        
+        // Auto-hide after timeout
+        if (autoHide) {
+            const timeout = type === 'warning' ? 6000 : 4000;
+            setTimeout(() => {
+                $(`#${alertId}`).fadeOut(function() {
+                    $(this).remove();
+                });
+            }, timeout);
+        }
+        
+        return alertId;
+    }
+    
+    // ✅ Enhanced student fetching
+    $("#fetch_student").click(function() {
+        const subject = $("#subject").val();
+        const batch = $("#batch").val();
+        const date = $("#attendance_date").val();
+
+        if (!subject || !batch || !date) {
+            showAlert("Please select Subject, Batch, and Date", "warning");
+            return;
+        }
+
+        currentSubject = subject;
+        currentBatch = batch;
+
+        const $btn = $(this);
+        const originalText = $btn.html();
+        $btn.html('<i class="fas fa-spinner fa-spin mr-2"></i>Loading...');
+        $btn.prop('disabled', true);
+
+        // Load attendance summary
+        loadAttendanceSummary(subject, batch);
+
+         $.ajax({
+            url: "{% url 'get_students' %}",
+            type: 'POST',
+            data: { 
+                subject: subject, 
+                batch: batch,
+                date: date
+            },
+            success: function(response) {
+                // Reset view state
+                isViewOnly = false;
+                $("#viewOnlyBadge").hide();
+                $("#viewOnlyNotice").hide();
+                $("#bulkActionContainer").show();
+                $("#actionButtons").show();
+                
+                // Store current date for reference
+                currentDate = date;
+                
+                // Check if view-only mode
+                if (response.is_past_date || (response.is_today && response.attendance_exists)) {
+                    isViewOnly = true;
+                    $("#viewOnlyBadge").show();
                     
-                }).fail(function (response) {
-                    alert("Error in saving attendance")
-                })
-    
-            })
+                    let reasonText = "You cannot modify attendance for this date.";
+                    if (response.is_past_date && !response.attendance_exists) {
+                        reasonText = "No attendance was recorded for this date.";
+                    } else if (response.is_past_date && response.attendance_exists) {
+                        reasonText = "Viewing recorded attendance for this past date.";
+                    } else if (response.is_today && response.attendance_exists) {
+                        reasonText = "Today's attendance has already been recorded.";
+                    }
+                    
+                    $("#viewOnlyReason").text(reasonText);
+                    $("#viewOnlyNotice").show();
+                    $("#bulkActionContainer").hide();
+                    $("#actionButtons").hide();
+                }
+                
+                // Show contextual messages
+                let dateContextMessage = "";
+                const dateObj = new Date(date);
+                const formattedDate = dateObj.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                if (response.is_past_date) {
+                    if (response.attendance_exists) {
+                        dateContextMessage = `Viewing attendance for <strong>${formattedDate}</strong>. ${response.students_with_attendance} of ${response.total_students} students had attendance recorded.`;
+                        showAlert(dateContextMessage, "info", false);
+                    } else {
+                        dateContextMessage = `No attendance was taken on <strong>${formattedDate}</strong>. Students will show as "Not Recorded".`;
+                        showAlert(dateContextMessage, "warning", false);
+                    }
+                } else if (response.is_today && response.attendance_exists) {
+                    dateContextMessage = `Viewing today's attendance for <strong>${formattedDate}</strong>. ${response.students_with_attendance} students recorded.`;
+                    showAlert(dateContextMessage, "info", false);
+                } else if (response.is_today && !response.attendance_exists) {
+                    dateContextMessage = `Ready to record attendance for <strong>today (${formattedDate})</strong>.`;
+                    showAlert(dateContextMessage, "success", true);
+                }
+                
+                // Parse and render students
+                const students = JSON.parse(response.students);
+                if (students.length === 0) {
+                    showAlert("No students found for this combination", "warning");
+                    return;
+                }
 
+                studentsData = students;
+                renderStudents(students, isViewOnly, response.attendance_exists);
+                $("#studentsPanel").slideDown();
+                $("#studentCount").text(`${students.length} Students`);
+            },
+            error: function(xhr) {
+                if (xhr.responseJSON) {
+                    showAlert(xhr.responseJSON.error, "danger");
+                } else {
+                    showAlert("Error loading students", "danger");
+                }
+            },
+            complete: function() {
+                $btn.html(originalText);
+                $btn.prop('disabled', false);
+            }
+        });
+    });
 
-        })
-    })
+    // ✅ Render students with enhanced UI and view-only support
+    function renderStudents(students, viewOnly, attendanceExists) {
+        let html = '';
+        
+        students.forEach((student, index) => {
+            const percentageClass = getPercentageClass(student.attendance_percentage);
+            
+            // ✅ FIXED: Only set initial status if attendance actually exists
+            let initialStatus = null;
+            let cardClass = 'student-card';
+            
+            if (attendanceExists && student.attendance_status !== null) {
+                // Attendance exists for this date - use recorded status
+                initialStatus = student.attendance_status;
+                cardClass += initialStatus ? ' present' : ' absent';
+            } else if (!attendanceExists && !student.is_past_date && student.is_today) {
+                // No attendance for today - default to present for new entry
+                initialStatus = true;
+                cardClass += ' present';
+            } else {
+                // No attendance for past date - show neutral state
+                cardClass += ' neutral';
+            }
+            
+            if (viewOnly) {
+                cardClass += ' view-only';
+            }
+            
+            html += `
+                <div class="${cardClass}" data-student-id="${student.id}" data-index="${index}" ${initialStatus !== null ? `data-status="${initialStatus ? 1 : 0}"` : ''}>
+                    <div class="row align-items-center">
+                        <div class="col-md-1">
+                            ${student.profile_pic ? 
+                                `<img src="${student.profile_pic}" class="student-avatar" alt="Avatar">` :
+                                `<div class="student-avatar bg-secondary d-flex align-items-center justify-content-center text-white"><i class="fas fa-user"></i></div>`
+                            }
+                        </div>
+                        <div class="col-md-5">
+                            <strong>${student.name}</strong>
+                            <br>
+                            <small class="text-muted">
+                                <i class="fas fa-chart-line mr-1"></i>${student.total_classes} classes total
+                            </small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <span class="attendance-percentage ${percentageClass}">
+                                ${student.attendance_percentage}%
+                            </span>
+                        </div>
+                        <div class="col-md-3 text-right">
+                            ${renderStudentActions(initialStatus, viewOnly, attendanceExists, student)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        $("#student_list").html(html);
+        
+        // ✅ FIXED: Only set default status for today's new attendance
+        if (!viewOnly && !attendanceExists && currentDate === today) {
+            $('.student-card').each(function() {
+                if (!$(this).attr('data-status')) {
+                    $(this).attr('data-status', '1');
+                    $(this).addClass('present');
+                }
+            });
+        }
+    }
+
+    function renderStudentActions(initialStatus, viewOnly, attendanceExists, student) {
+    if (viewOnly) {
+        if (attendanceExists && initialStatus !== null) {
+            // Show recorded attendance status
+            return `<span class="badge ${initialStatus ? 'badge-success' : 'badge-danger'}">
+                        ${initialStatus ? '<i class="fas fa-check mr-1"></i>Present' : '<i class="fas fa-times mr-1"></i>Absent'}
+                    </span>`;
+        } else {
+            // No attendance recorded for this date
+            return `<span class="badge badge-secondary">
+                        <i class="fas fa-minus mr-1"></i>Not Recorded
+                    </span>`;
+        }
+    } else {
+        // Editable mode - show buttons
+        return `<div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm ${initialStatus === true ? 'btn-success active' : 'btn-outline-success'} present-btn" data-status="1">
+                        <i class="fas fa-check"></i> Present
+                    </button>
+                    <button type="button" class="btn btn-sm ${initialStatus === false ? 'btn-danger active' : 'btn-outline-danger'} absent-btn" data-status="0">
+                        <i class="fas fa-times"></i> Absent
+                    </button>
+                </div>`;
+    }
+}
+
+    // ✅ Student status toggle (only in editable mode)
+    $(document).on('click', '.present-btn, .absent-btn', function() {
+        if (isViewOnly) return;
+        
+        const $card = $(this).closest('.student-card');
+        const status = $(this).data('status');
+        
+        $card.find('.btn').removeClass('active');
+        $(this).addClass('active');
+        
+        $card.removeClass('present absent');
+        $card.addClass(status == 1 ? 'present' : 'absent');
+        $card.attr('data-status', status);
+        
+        updateAttendancePreview();
+    });
+
+    // ✅ Bulk actions (only in editable mode)
+    $("#markAllPresent").click(function() {
+        if (isViewOnly) return;
+        
+        $('.student-card').each(function() {
+            $(this).find('.present-btn').click();
+        });
+        showAlert("All students marked as present", "success");
+    });
+
+    $("#markAllAbsent").click(function() {
+        if (isViewOnly) return;
+        
+        $('.student-card').each(function() {
+            $(this).find('.absent-btn').click();
+        });
+        showAlert("All students marked as absent", "warning");
+    });
+
+    // ✅ Search functionality
+    $("#searchStudents").on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        $('.student-card').each(function() {
+            const studentName = $(this).find('strong').text().toLowerCase();
+            if (studentName.includes(searchTerm)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
+    // ✅ Save attendance (only for today's new records)
+    $("#save_attendance").click(function() {
+        if (isViewOnly) {
+            showAlert("Cannot modify attendance for this date", "warning");
+            return;
+        }
+        
+        const attendanceData = [];
+        
+        $('.student-card').each(function() {
+            const studentId = $(this).data('student-id');
+            const status = parseInt($(this).attr('data-status'));
+            attendanceData.push({ id: studentId, status: status });
+        });
+
+        const $btn = $(this);
+        const originalText = $btn.html();
+        $btn.html('<i class="fas fa-spinner fa-spin mr-2"></i>Saving...');
+        $btn.prop('disabled', true);
+
+        $.ajax({
+            url: "{% url 'save_attendance' %}",
+            type: 'POST',
+            data: {
+                date: $("#attendance_date").val(),
+                student_ids: JSON.stringify(attendanceData),
+                subject: currentSubject,
+                batch: currentBatch
+            },
+            success: function(response) {
+                if (response.success) {
+                    $("#successMessage").text(response.message);
+                    const presentCount = attendanceData.filter(s => s.status === 1).length;
+                    const absentCount = attendanceData.filter(s => s.status === 0).length;
+                    
+                    $("#attendanceStats").html(`
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <div class="text-success">
+                                    <h4>${presentCount}</h4>
+                                    <small>Present</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-danger">
+                                    <h4>${absentCount}</h4>
+                                    <small>Absent</small>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    
+                    $("#successModal").modal('show');
+                    
+                    // Reset form after 2 seconds
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    showAlert("Error: " + (response.error || "Could not save attendance"), "danger");
+                }
+            },
+            error: function(xhr) {
+                let errorMsg = "Error saving attendance";
+                if (xhr.responseJSON) {
+                    errorMsg = xhr.responseJSON.error;
+                    
+                    if (xhr.responseJSON.view_only) {
+                        // Switch to view-only mode if server indicates so
+                        isViewOnly = true;
+                        $("#viewOnlyBadge").show();
+                        $("#viewOnlyReason").text(errorMsg);
+                        $("#viewOnlyNotice").show();
+                        $("#bulkActionContainer").hide();
+                        $("#actionButtons").hide();
+                    }
+                }
+                showAlert(errorMsg, "danger");
+            },
+            complete: function() {
+                $btn.html(originalText);
+                $btn.prop('disabled', false);
+            }
+        });
+    });
+
+    // ✅ Load attendance summary
+    function loadAttendanceSummary(subject, batch) {
+        $.ajax({
+            url: "{% url 'get_attendance_summary' %}",
+            type: 'POST',
+            data: { subject: subject, batch: batch },
+            success: function(response) {
+                $("#summaryStats h4").text(response.average_attendance + "%");
+            }
+        });
+    }
+
+    // ✅ Helper functions
+    function getPercentageClass(percentage) {
+        if (percentage >= 75) return 'percentage-high';
+        if (percentage >= 60) return 'percentage-medium';
+        return 'percentage-low';
+    }
+
+    function updateAttendancePreview() {
+        const presentCount = $('.student-card[data-status="1"]:visible').length;
+        const absentCount = $('.student-card[data-status="0"]:visible').length;
+        const total = presentCount + absentCount;
+        
+        if (total > 0) {
+            const percentage = ((presentCount / total) * 100).toFixed(1);
+            $("#save_attendance").html(`
+                <i class="fas fa-save mr-1"></i>Save Attendance (${presentCount}P/${absentCount}A - ${percentage}%)
+            `);
+        }
+    }
+});
 </script>
 {% endblock custom_js %}

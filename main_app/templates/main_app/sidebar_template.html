@@ -1,273 +1,648 @@
 {% load static %}
+<style>
+    .main-sidebar {
+        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        width: 250px;
+    }
+
+    .brand-link {
+        background: rgba(255,255,255,0.1);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .brand-link:hover {
+        background: rgba(255,255,255,0.15);
+        text-decoration: none;
+    }
+
+    .brand-text {
+        color: #ecf0f1 !important;
+        font-weight: 600 !important;
+        font-size: 1.1rem;
+        margin-left: 10px;
+    }
+
+    .user-panel {
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+        margin: 10px;
+        padding: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .user-panel .image img {
+        width: 40px;
+        height: 40px;
+        border: 2px solid rgba(255,255,255,0.3);
+        transition: all 0.3s ease;
+    }
+
+    .user-panel .image img:hover {
+        border-color: #3498db;
+        transform: scale(1.05);
+    }
+
+    .user-panel .info a {
+        color: #ecf0f1 !important;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        line-height: 1.2;
+    }
+
+    .nav-sidebar {
+        padding: 5px 0;
+    }
+
+    .nav-item {
+        margin: 1px 0;
+    }
+
+    .nav-link {
+        color: #bdc3c7 !important;
+        padding: 8px 15px;
+        border-radius: 0 20px 20px 0;
+        margin: 1px 10px 1px 0;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .nav-link:hover {
+        background: rgba(52, 152, 219, 0.2) !important;
+        color: #3498db !important;
+        transform: translateX(3px);
+    }
+
+    .nav-link.active {
+        background: linear-gradient(135deg, #3498db, #2980b9) !important;
+        color: white !important;
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    }
+
+    .nav-link.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: #ecf0f1;
+    }
+
+    .nav-icon {
+        width: 16px;
+        text-align: center;
+        margin-right: 8px;
+        font-size: 0.9rem;
+    }
+
+    .nav-treeview {
+        padding-left: 0;
+    }
+
+    .nav-treeview .nav-link {
+        padding-left: 40px;
+        font-size: 0.85rem;
+        margin-right: 0;
+        border-radius: 0;
+    }
+
+    .nav-treeview .nav-link:hover {
+        background: rgba(255,255,255,0.1) !important;
+        transform: translateX(5px);
+    }
+
+    .nav-treeview .nav-link.active {
+        background: rgba(52, 152, 219, 0.3) !important;
+        border-left: 2px solid #3498db;
+    }
+
+    .has-treeview > .nav-link {
+        position: relative;
+    }
+
+    .has-treeview > .nav-link .right {
+        transition: transform 0.3s ease;
+        font-size: 0.8rem;
+        color: #95a5a6;
+    }
+
+    .has-treeview.menu-open > .nav-link .right {
+        transform: rotate(90deg);
+        color: #3498db;
+    }
+
+    .logout-section {
+        margin-top: 15px;
+        padding: 10px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .logout-section .nav-link {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        border: none;
+        margin: 0;
+        border-radius: 20px;
+        color: white !important;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);  
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px;
+        padding: 0 15px;
+        cursor: pointer;
+    }
+
+    .logout-section .nav-link:hover {
+        background: linear-gradient(135deg, #8b0000, #640000) !important;
+        color: white !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(139, 0, 0, 0.5);
+    }
+
+    .logout-section .nav-link .nav-icon {
+        margin-right: 8px;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .logout-section .nav-link p {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        line-height: 1;
+    }
+
+    .section-divider {
+        height: 1px;
+        background: rgba(255,255,255,0.1);
+        margin: 8px 15px;
+    }
+
+    .section-title {
+        color: #95a5a6;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 6px 15px 3px;
+        margin: 5px 0 3px;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-left: 8px;
+        color: white;
+    }
+
+    .admin-badge {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+    }
+
+    .staff-badge {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+    }
+
+    .student-badge {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+    }
+
+    .sidebar {
+        overflow-x: hidden;
+        width: 100%;
+    }
+
+    .nav-sidebar .nav-link p {
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* ✅ PROFESSIONAL LOGOUT DIALOG STYLES */
+    .logout-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .logout-modal.show {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .logout-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+    }
+
+    .logout-modal-content {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        max-width: 450px;
+        width: 90%;
+        position: relative;
+        animation: modalSlideIn 0.4s ease;
+        overflow: hidden;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .logout-modal-header {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+        padding: 25px;
+        text-align: center;
+        position: relative;
+    }
+
+    .logout-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.9;
+    }
+
+    .logout-modal-header h4 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.4rem;
+    }
+
+    .logout-modal-body {
+        padding: 30px 25px;
+        text-align: center;
+    }
+
+    .logout-modal-body p {
+        margin: 0 0 20px 0;
+        color: #2c3e50;
+        font-size: 1.1rem;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .logout-warning {
+        color: #7f8c8d !important;
+        font-size: 0.9rem !important;
+        font-weight: 400 !important;
+        margin-bottom: 0 !important;
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #f39c12;
+    }
+
+    .logout-modal-footer {
+        padding: 20px 25px 25px;
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        background: #f8f9fa;
+    }
+
+    .btn-cancel, .btn-logout {
+        flex: 1;
+        padding: 14px 20px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-cancel {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .btn-cancel:hover {
+        background: #7f8c8d;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+    }
+
+    .btn-logout {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+    }
+
+    .btn-logout:hover {
+        background: linear-gradient(135deg, #c0392b, #a93226);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.5);
+    }
+
+    .btn-logout:disabled {
+        background: #bdc3c7;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    @media (max-width: 768px) {
+        .main-sidebar {
+            width: 220px;
+        }
+        
+        .nav-link {
+            margin-right: 5px;
+            padding: 6px 12px;
+        }
+        
+        .brand-link {
+            padding: 12px;
+        }
+        
+        .section-title {
+            font-size: 0.7rem;
+        }
+
+        .logout-modal-content {
+            max-width: 350px;
+            margin: 20px;
+        }
+        
+        .logout-modal-footer {
+            flex-direction: column;
+        }
+        
+        .btn-cancel, .btn-logout {
+            width: 100%;
+        }
+    }
+</style>
+
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
 {% if request.user.user_type == '1' %}
-    <!-- Brand Logo -->
+    <!-- Admin Panel -->
     <a href="{% url 'admin_home' %}" class="brand-link">
-        <img src="{% static 'dist/img/AdminLTELogo.png' %} " alt="AdminLTE Logo"
-            class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">Admin Panel</span>
+        <span class="brand-text">Admin Panel</span>
+        <span class="role-badge admin-badge">Admin</span>
     </a>
 
-    <!-- Sidebar -->
     <div class="sidebar">
-        <!-- Sidebar user panel (optional) -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                <img src="{{ request.user.profile_pic}}" class="img-circle elevation-2" alt="User Image">
+                <!-- ✅ FIXED: Safe profile picture display -->
+                {% if request.user.profile_pic and request.user.profile_pic.name %}
+                    <img src="{{ request.user.profile_pic.url }}" class="img-circle elevation-2" alt="Admin Profile">
+                {% else %}
+                    <img src="{% static 'img/default-avatar.png' %}" class="img-circle elevation-2" alt="Default Profile">
+                {% endif %}
             </div>
             <div class="info">
-                <a href="#" class="d-block">{{user}}</a>
+                <a href="{% url 'admin_view_profile' %}" class="d-block">
+                    {{ user.first_name }} {{ user.last_name }}
+                    <br><small style="color: #95a5a6;">Administrator</small>
+                </a>
             </div>
         </div>
 
-        <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
-                <!-- Home -->
                 <li class="nav-item">
                     {% url 'admin_home' as admin_home %}
-                    <a href="{{admin_home}}" class="nav-link {% if admin_home == request.path %} active {% endif %}">
+                    <a href="{{admin_home}}" class="nav-link {% if admin_home == request.path %}active{% endif %}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
 
-                <!-- Profile -->
                 <li class="nav-item">
                     {% url 'admin_view_profile' as admin_view_profile %}
-                    <a href="{{admin_view_profile}}" class="nav-link {% if admin_view_profile == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-user"></i>
-                        <p>View/Edit Profile</p>
+                    <a href="{{admin_view_profile}}" class="nav-link {% if admin_view_profile == request.path %}active{% endif %}">
+                        <i class="nav-icon fas fa-user-shield"></i>
+                        <p>My Profile</p>
                     </a>
                 </li>
 
-                <!-- Staff Management -->
-                <li class="nav-item has-treeview">
+                <div class="section-divider"></div>
+                <div class="section-title">User Management</div>
+
+                <li class="nav-item has-treeview {% if '/staff/' in request.path %}menu-open{% endif %}">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-users"></i>
+                        <i class="nav-icon fas fa-users-cog"></i>
                         <p>
                             Staff Management
-                            <i class="right fas fa-angle-left"></i>
+                            <i class="right fas fa-chevron-right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             {% url 'add_staff' as add_staff %}
-                            <a href="{{add_staff}}" class="nav-link {% if add_staff == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-plus"></i>
+                            <a href="{{add_staff}}" class="nav-link {% if add_staff == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-plus-circle"></i>
                                 <p>Add Staff</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             {% url 'manage_staff' as manage_staff %}
-                            <a href="{{manage_staff}}" class="nav-link {% if manage_staff == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-list"></i>
+                            <a href="{{manage_staff}}" class="nav-link {% if manage_staff == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-list-ul"></i>
                                 <p>Manage Staff</p>
                             </a>
                         </li>
                     </ul>
                 </li>
 
-                <!-- Student Management -->
-                <li class="nav-item has-treeview">
+                <li class="nav-item has-treeview {% if '/student/' in request.path %}menu-open{% endif %}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-user-graduate"></i>
                         <p>
                             Student Management
-                            <i class="right fas fa-angle-left"></i>
+                            <i class="right fas fa-chevron-right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             {% url 'add_student' as add_student %}
-                            <a href="{{add_student}}" class="nav-link {% if add_student == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-plus"></i>
+                            <a href="{{add_student}}" class="nav-link {% if add_student == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-plus-circle"></i>
                                 <p>Add Student</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             {% url 'manage_student' as manage_student %}
-                            <a href="{{manage_student}}" class="nav-link {% if manage_student == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-list"></i>
+                            <a href="{{manage_student}}" class="nav-link {% if manage_student == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-list-ul"></i>
                                 <p>Manage Students</p>
                             </a>
                         </li>
                     </ul>
                 </li>
 
-                <!-- Department Management -->
+                <div class="section-divider"></div>
+                <div class="section-title">Academic Management</div>
+
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-building"></i>
                         <p>
-                            Department Management
-                            <i class="right fas fa-angle-left"></i>
+                            Departments
+                            <i class="right fas fa-chevron-right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             {% url 'add_course' as add_course %}
-                            <a href="{{add_course}}" class="nav-link {% if add_course == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-plus"></i>
+                            <a href="{{add_course}}" class="nav-link {% if add_course == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-plus-circle"></i>
                                 <p>Add Department</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             {% url 'manage_course' as manage_course %}
-                            <a href="{{manage_course}}" class="nav-link {% if manage_course == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-list"></i>
+                            <a href="{{manage_course}}" class="nav-link {% if manage_course == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-list-ul"></i>
                                 <p>Manage Departments</p>
                             </a>
                         </li>
                     </ul>
                 </li>
 
-                <!-- Batch Management -->
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-layer-group"></i>
+                        <i class="nav-icon fas fa-book-open"></i>
                         <p>
-                            Batch Management
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            {% url 'add_Batch' as add_Batch %}
-                            <a href="{{add_Batch}}" class="nav-link {% if add_Batch == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-plus"></i>
-                                <p>Add Batch</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            {% url 'manage_Batch' as manage_Batch %}
-                            <a href="{{manage_Batch}}" class="nav-link {% if manage_Batch == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-list"></i>
-                                <p>Manage Batches</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                <!-- Academic Years -->
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>
-                            Academic Years
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{% url 'add_year' %}" class="nav-link">
-                                <i class="nav-icon fas fa-plus"></i>
-                                <p>Add Academic Year</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{% url 'manage_year' %}" class="nav-link">
-                                <i class="nav-icon fas fa-list"></i>
-                                <p>Manage Academic Years</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                <!-- Semester Management -->
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-list-ol"></i>
-                        <p>
-                            Semester Management
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{% url 'add_semester' %}" class="nav-link">
-                                <i class="nav-icon fas fa-plus"></i>
-                                <p>Add Semester</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{% url 'manage_semester' %}" class="nav-link">
-                                <i class="nav-icon fas fa-list"></i>
-                                <p>Manage Semesters</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-
-                <!-- Subject Management -->
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-book"></i>
-                        <p>
-                            Subject Management
-                            <i class="right fas fa-angle-left"></i>
+                            Subjects
+                            <i class="right fas fa-chevron-right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             {% url 'add_subject' as add_subject %}
-                            <a href="{{add_subject}}" class="nav-link {% if add_subject == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-plus"></i>
+                            <a href="{{add_subject}}" class="nav-link {% if add_subject == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-plus-circle"></i>
                                 <p>Add Subject</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             {% url 'manage_subject' as manage_subject %}
-                            <a href="{{manage_subject}}" class="nav-link {% if manage_subject == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-list"></i>
+                            <a href="{{manage_subject}}" class="nav-link {% if manage_subject == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-list-ul"></i>
                                 <p>Manage Subjects</p>
                             </a>
                         </li>
                     </ul>
                 </li>
 
-                <!-- Attendance & Reports -->
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-chart-line"></i>
+                        <i class="nav-icon fas fa-layer-group"></i>
                         <p>
-                            Attendance & Reports
-                            <i class="right fas fa-angle-left"></i>
+                            Batches & Years
+                            <i class="right fas fa-chevron-right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            {% url 'admin_view_attendance' as admin_view_attendance %}
-                            <a href="{{admin_view_attendance}}" class="nav-link {% if admin_view_attendance == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-eye"></i>
-                                <p>View Attendance</p>
+                            {% url 'add_Batch' as add_Batch %}
+                            <a href="{{add_Batch}}" class="nav-link {% if add_Batch == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-plus-circle"></i>
+                                <p>Add Batch</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            {% url 'manage_Batch' as manage_Batch %}
+                            <a href="{{manage_Batch}}" class="nav-link {% if manage_Batch == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-layer-group"></i>
+                                <p>Manage Batches</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'add_year' %}" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-plus"></i>
+                                <p>Add Academic Year</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'manage_year' %}" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-alt"></i>
+                                <p>Manage Years</p>
                             </a>
                         </li>
                     </ul>
                 </li>
 
-                <!-- Feedback Management -->
+                <div class="section-divider"></div>
+                <div class="section-title">Reports</div>
+
+                <li class="nav-item">
+                    {% url 'admin_view_attendance' as admin_view_attendance %}
+                    <a href="{{admin_view_attendance}}" class="nav-link {% if admin_view_attendance == request.path %}active{% endif %}">
+                        <i class="nav-icon fas fa-chart-line"></i>
+                        <p>Attendance Reports</p>
+                    </a>
+                </li>
+
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-comments"></i>
                         <p>
-                            Feedback Management
-                            <i class="right fas fa-angle-left"></i>
+                            Feedback
+                            <i class="right fas fa-chevron-right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             {% url 'student_feedback_message' as student_feedback_message %}
-                            <a href="{{ student_feedback_message }}" class="nav-link {% if student_feedback_message == request.path %} active {% endif %}">
+                            <a href="{{ student_feedback_message }}" class="nav-link {% if student_feedback_message == request.path %}active{% endif %}">
                                 <i class="nav-icon fas fa-user-graduate"></i>
                                 <p>Student Feedback</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             {% url 'staff_feedback_message' as staff_feedback_message %}
-                            <a href="{{staff_feedback_message}}" class="nav-link {% if staff_feedback_message == request.path %} active {% endif %}">
+                            <a href="{{staff_feedback_message}}" class="nav-link {% if staff_feedback_message == request.path %}active{% endif %}">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Staff Feedback</p>
                             </a>
@@ -275,26 +650,25 @@
                     </ul>
                 </li>
 
-                <!-- Leave Management -->
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-calendar-times"></i>
                         <p>
                             Leave Management
-                            <i class="right fas fa-angle-left"></i>
+                            <i class="right fas fa-chevron-right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             {% url 'view_staff_leave' as view_staff_leave %}
-                            <a href="{{view_staff_leave}}" class="nav-link {% if view_staff_leave == request.path %} active {% endif %}">
+                            <a href="{{view_staff_leave}}" class="nav-link {% if view_staff_leave == request.path %}active{% endif %}">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Staff Leave</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             {% url 'view_student_leave' as view_student_leave %}
-                            <a href="{% url 'view_student_leave' %}" class="nav-link {% if view_student_leave == request.path %} active {% endif %}">
+                            <a href="{% url 'view_student_leave' %}" class="nav-link {% if view_student_leave == request.path %}active{% endif %}">
                                 <i class="nav-icon fas fa-user-graduate"></i>
                                 <p>Student Leave</p>
                             </a>
@@ -302,26 +676,25 @@
                     </ul>
                 </li>
 
-                <!-- Notifications -->
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-bell"></i>
                         <p>
                             Notifications
-                            <i class="right fas fa-angle-left"></i>
+                            <i class="right fas fa-chevron-right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             {% url 'admin_notify_staff' as admin_notify_staff %}
-                            <a href="{{admin_notify_staff}}" class="nav-link {% if admin_notify_staff == request.path %} active {% endif %}">
+                            <a href="{{admin_notify_staff}}" class="nav-link {% if admin_notify_staff == request.path %}active{% endif %}">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Notify Staff</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             {% url 'admin_notify_student' as admin_notify_student %}
-                            <a href="{{admin_notify_student}}" class="nav-link {% if admin_notify_student == request.path %} active {% endif %}">
+                            <a href="{{admin_notify_student}}" class="nav-link {% if admin_notify_student == request.path %}active{% endif %}">
                                 <i class="nav-icon fas fa-user-graduate"></i>
                                 <p>Notify Students</p>
                             </a>
@@ -329,46 +702,51 @@
                     </ul>
                 </li>
 
-                <!-- Logout -->
-                <li class="nav-item">
-                    <a href="{% url 'user_logout' %}" onclick="return confirm('Your session would be terminated.\n\nProceed?')" class="nav-link">
-                        <i class="nav-icon fas fa-sign-out-alt"></i>
-                        <p>Logout</p>
-                    </a>
-                </li>
+                <!-- ✅ UPDATED: Logout section with dialog trigger -->
+                <div class="logout-section">
+                    <li class="nav-item">
+                        <a href="#" onclick="showLogoutDialog()" class="nav-link">
+                            <i class="nav-icon fas fa-power-off"></i>
+                            <p>Logout</p>
+                        </a>
+                    </li>
+                </div>
 
             </ul>
         </nav>
     </div>
 
 {% elif request.user.user_type == '2' %}
-    <!-- Staff Panel remains the same -->
-    <!-- Brand Logo -->
-    <a href="#" class="brand-link">
-        <img src="{% static 'dist/img/AdminLTELogo.png' %} " alt="AdminLTE Logo"
-            class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">Staff Panel</span>
+    <!-- Staff Panel -->
+    <a href="{% url 'staff_home' %}" class="brand-link">
+        <span class="brand-text">Staff Panel</span>
+        <span class="role-badge staff-badge">Staff</span>
     </a>
 
-    <!-- Sidebar -->
     <div class="sidebar">
-        <!-- Sidebar user panel (optional) -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                <img src="{{ request.user.profile_pic}}" class="img-circle elevation-2" alt="User Image">
+                <!-- ✅ FIXED: Safe profile picture display -->
+                {% if request.user.profile_pic and request.user.profile_pic.name %}
+                    <img src="{{ request.user.profile_pic.url }}" class="img-circle elevation-2" alt="Staff Profile">
+                {% else %}
+                    <img src="{% static 'img/default-avatar.png' %}" class="img-circle elevation-2" alt="Default Profile">
+                {% endif %}
             </div>
             <div class="info">
-                <a href="#" class="d-block">{{ user}}</a>
+                <a href="{% url 'staff_view_profile' %}" class="d-block">
+                    {{ user.first_name }} {{ user.last_name }}
+                    <br><small style="color: #95a5a6;">{{ user.professor.department.dept_name }}</small>
+                </a>
             </div>
         </div>
 
-        <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
                 <li class="nav-item">
                     {% url 'staff_home' as staff_home %}
-                    <a href="{{staff_home}}" class="nav-link {% if staff_home == request.path %} active {% endif %}">
+                    <a href="{{staff_home}}" class="nav-link {% if staff_home == request.path %}active{% endif %}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
@@ -376,59 +754,60 @@
 
                 <li class="nav-item">
                     {% url 'staff_view_profile' as staff_view_profile %}
-                    <a href="{{staff_view_profile}}" class="nav-link {% if staff_view_profile == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-user"></i>
-                        <p>View/Edit Profile</p>
+                    <a href="{{staff_view_profile}}" class="nav-link {% if staff_view_profile == request.path %}active{% endif %}">
+                        <i class="nav-icon fas fa-user-edit"></i>
+                        <p>My Profile</p>
                     </a>
                 </li>
 
-                <!-- Results Management -->
-                <li class="nav-item has-treeview">
+                <div class="section-divider"></div>
+                <div class="section-title">Academic Tasks</div>
+
+                <li class="nav-item has-treeview {% if '/result/' in request.path %}menu-open{% endif %}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-chart-bar"></i>
                         <p>
                             Results Management
-                            <i class="right fas fa-angle-left"></i>
+                            <i class="right fas fa-chevron-right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             {% url 'staff_add_result' as staff_add_result %}
-                            <a href="{{staff_add_result}}" class="nav-link {% if staff_add_result == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-plus"></i>
-                                <p>Add Result</p>
+                            <a href="{{staff_add_result}}" class="nav-link {% if staff_add_result == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-plus-circle"></i>
+                                <p>Add Results</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            {% url 'edit_student_result' as edit_student_result %}
-                            <a href="{{edit_student_result}}" class="nav-link {% if edit_student_result == request.path %} active {% endif %}">
+                            {% url 'staff_edit_result' as staff_edit_result %}
+                            <a href="{{staff_edit_result}}" class="nav-link {% if staff_edit_result == request.path %}active{% endif %}">
                                 <i class="nav-icon fas fa-edit"></i>
-                                <p>Edit Result</p>
+                                <p>Edit Results</p>
                             </a>
                         </li>
                     </ul>
                 </li>
 
-                <!-- Attendance Management -->
-                <li class="nav-item has-treeview">
+                <li class="nav-item has-treeview {% if '/attendance/' in request.path %}menu-open{% endif %}">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-calendar-check"></i>
                         <p>
-                            Attendance Management
-                            <i class="right fas fa-angle-left"></i>
+                            Attendance
+                            <i class="right fas fa-chevron-right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             {% url 'staff_take_attendance' as staff_take_attendance %}
-                            <a href="{{staff_take_attendance}}" class="nav-link {% if staff_take_attendance == request.path %} active {% endif %}">
-                                <i class="nav-icon fas fa-plus"></i>
+                            <a href="{{staff_take_attendance}}" class="nav-link {% if staff_take_attendance == request.path %}active{% endif %}">
+                                <i class="nav-icon fas fa-user-check"></i>
                                 <p>Take Attendance</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             {% url 'staff_update_attendance' as staff_update_attendance %}
-                            <a href="{{staff_update_attendance}}" class="nav-link {% if staff_update_attendance == request.path %} active {% endif %}">
+                            <a href="{{staff_update_attendance}}" class="nav-link {% if staff_update_attendance == request.path %}active{% endif %}">
                                 <i class="nav-icon fas fa-edit"></i>
                                 <p>Update Attendance</p>
                             </a>
@@ -436,69 +815,78 @@
                     </ul>
                 </li>
 
-                <li class="nav-item">
-                    {% url 'staff_view_notification' as staff_view_notification %}
-                    <a href="{{staff_view_notification}}" class="nav-link {% if staff_view_notification == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-bell"></i>
-                        <p>View Notifications</p>
-                    </a>
-                </li>
+                <div class="section-divider"></div>
+                <div class="section-title">Communication</div>
 
                 <li class="nav-item">
-                    {% url 'staff_apply_leave' as staff_apply_leave %}
-                    <a href="{{staff_apply_leave}}" class="nav-link {% if staff_apply_leave == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-calendar-times"></i>
-                        <p>Apply For Leave</p>
+                    {% url 'staff_view_notification' as staff_view_notification %}
+                    <a href="{{staff_view_notification}}" class="nav-link {% if staff_view_notification == request.path %}active{% endif %}">
+                        <i class="nav-icon fas fa-bell"></i>
+                        <p>Notifications</p>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     {% url 'staff_feedback' as staff_feedback %}
-                    <a href="{{staff_feedback}}" class="nav-link {% if staff_feedback == request.path %} active {% endif %}">
+                    <a href="{{staff_feedback}}" class="nav-link {% if staff_feedback == request.path %}active{% endif %}">
                         <i class="nav-icon fas fa-comments"></i>
-                        <p>Feedback</p>
+                        <p>Send Feedback</p>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a href="{% url 'user_logout' %}" onclick="return confirm('Your session would be terminated.\n\nProceed?')" class="nav-link">
-                        <i class="nav-icon fas fa-sign-out-alt"></i>
-                        <p>Logout</p>
+                    {% url 'staff_apply_leave' as staff_apply_leave %}
+                    <a href="{{staff_apply_leave}}" class="nav-link {% if staff_apply_leave == request.path %}active{% endif %}">
+                        <i class="nav-icon fas fa-calendar-times"></i>
+                        <p>Apply for Leave</p>
                     </a>
                 </li>
+
+                <!-- ✅ UPDATED: Logout section with dialog trigger -->
+                <div class="logout-section">
+                    <li class="nav-item">
+                        <a href="#" onclick="showLogoutDialog()" class="nav-link">
+                            <i class="nav-icon fas fa-power-off"></i>
+                            <p>Logout</p>
+                        </a>
+                    </li>
+                </div>
 
             </ul>
         </nav>
     </div>
 
 {% else %}
-    <!-- Student Panel remains mostly the same -->
-    <!-- Brand Logo -->
-    <a href="" class="brand-link">
-        <img src="{% static 'dist/img/AdminLTELogo.png' %} " alt="AdminLTE Logo"
-            class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">Student Panel</span>
+    <!-- Student Panel -->
+    <a href="{% url 'student_home' %}" class="brand-link">
+        <span class="brand-text">Student Panel</span>
+        <span class="role-badge student-badge">Student</span>
     </a>
 
-    <!-- Sidebar -->
     <div class="sidebar">
-        <!-- Sidebar user panel (optional) -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                <img src="{{ request.user.profile_pic}}" class="img-circle elevation-2" alt="User Image">
+                <!-- ✅ FIXED: Safe profile picture display -->
+                {% if request.user.profile_pic and request.user.profile_pic.name %}
+                    <img src="{{ request.user.profile_pic.url }}" class="img-circle elevation-2" alt="Student Profile">
+                {% else %}
+                    <img src="{% static 'img/default-avatar.png' %}" class="img-circle elevation-2" alt="Default Profile">
+                {% endif %}
             </div>
             <div class="info">
-                <a href="#" class="d-block">{{user}}</a>
+                <a href="{% url 'student_view_profile' %}" class="d-block">
+                    {{ user.first_name }} {{ user.last_name }}
+                    <br><small style="color: #95a5a6;">{{ user.student.roll_no }}</small>
+                </a>
             </div>
         </div>
 
-        <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
                 <li class="nav-item">
                     {% url 'student_home' as student_home %}
-                    <a href="{{student_home}}" class="nav-link {% if student_home == request.path %} active {% endif %}">
+                    <a href="{{student_home}}" class="nav-link {% if student_home == request.path %}active{% endif %}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
@@ -506,62 +894,160 @@
 
                 <li class="nav-item">
                     {% url 'student_view_profile' as student_view_profile %}
-                    <a href="{{student_view_profile}}" class="nav-link {% if student_view_profile == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-user"></i>
-                        <p>View/Edit Profile</p>
+                    <a href="{{student_view_profile}}" class="nav-link {% if student_view_profile == request.path %}active{% endif %}">
+                        <i class="nav-icon fas fa-user-edit"></i>
+                        <p>My Profile</p>
                     </a>
                 </li>
+
+                <div class="section-divider"></div>
+                <div class="section-title">Academic Records</div>
 
                 <li class="nav-item">
                     {% url 'student_view_result' as student_view_result %}
-                    <a href="{% url 'student_view_result' %}" class="nav-link {% if student_view_result == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-chart-bar"></i>
-                        <p>View Results</p>
+                    <a href="{% url 'student_view_result' %}" class="nav-link {% if student_view_result == request.path %}active{% endif %}">
+                        <i class="nav-icon fas fa-chart-line"></i>
+                        <p>My Results</p>
                     </a>
                 </li>
-          
+
                 <li class="nav-item">
                     {% url 'student_view_attendance' as student_view_attendance %}
-                    <a href="{{student_view_attendance}}" class="nav-link {% if student_view_attendance == request.path %} active {% endif %}">
+                    <a href="{{student_view_attendance}}" class="nav-link {% if student_view_attendance == request.path %}active{% endif %}">
                         <i class="nav-icon fas fa-calendar-check"></i>
-                        <p>View Attendance</p>
+                        <p>My Attendance</p>
                     </a>
                 </li>
+
+                <div class="section-divider"></div>
+                <div class="section-title">Communication</div>
 
                 <li class="nav-item">
                     {% url 'student_view_notification' as student_view_notification %}
-                    <a href="{{student_view_notification}}" class="nav-link {% if student_view_notification == request.path %} active {% endif %}">
+                    <a href="{{student_view_notification}}" class="nav-link {% if student_view_notification == request.path %}active{% endif %}">
                         <i class="nav-icon fas fa-bell"></i>
-                        <p>View Notifications</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    {% url 'student_apply_leave' as student_apply_leave %}
-                    <a href="{{student_apply_leave}}" class="nav-link {% if student_apply_leave == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-calendar-times"></i>
-                        <p>Apply For Leave</p>
+                        <p>Notifications</p>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     {% url 'student_feedback' as student_feedback %}
-                    <a href="{{student_feedback}}" class="nav-link {% if student_feedback == request.path %} active {% endif %}">
+                    <a href="{{student_feedback}}" class="nav-link {% if student_feedback == request.path %}active{% endif %}">
                         <i class="nav-icon fas fa-comments"></i>
-                        <p>Feedback</p>
+                        <p>Send Feedback</p>
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a href="{% url 'user_logout' %}" onclick="return confirm('Your session would be terminated.\n\nProceed?')" class="nav-link">
-                        <i class="nav-icon fas fa-sign-out-alt"></i>
-                        <p>Logout</p>
+                    {% url 'student_apply_leave' as student_apply_leave %}
+                    <a href="{{student_apply_leave}}" class="nav-link {% if student_apply_leave == request.path %}active{% endif %}">
+                        <i class="nav-icon fas fa-calendar-times"></i>
+                        <p>Apply for Leave</p>
                     </a>
                 </li>
+
+                <!-- ✅ UPDATED: Logout section with dialog trigger -->
+                <div class="logout-section">
+                    <li class="nav-item">
+                        <a href="#" onclick="showLogoutDialog()" class="nav-link">
+                            <i class="nav-icon fas fa-power-off"></i>
+                            <p>Logout</p>
+                        </a>
+                    </li>
+                </div>
 
             </ul>
         </nav>
     </div>
 
 {% endif %}
+
+<!-- ✅ PROFESSIONAL LOGOUT CONFIRMATION DIALOG -->
+<div id="logoutModal" class="logout-modal">
+    <div class="logout-modal-overlay" onclick="hideLogoutDialog()"></div>
+    <div class="logout-modal-content">
+        <div class="logout-modal-header">
+            <i class="fas fa-sign-out-alt logout-icon"></i>
+            <h4>Confirm Logout</h4>
+        </div>
+        <div class="logout-modal-body">
+            <p>Are you sure you want to logout?</p>
+            <div class="logout-warning">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Your current session will be terminated and you'll need to login again to access the system.
+            </div>
+        </div>
+        <div class="logout-modal-footer">
+            <button type="button" class="btn-cancel" onclick="hideLogoutDialog()">
+                <i class="fas fa-times mr-2"></i>Cancel
+            </button>
+            <button type="button" class="btn-logout" onclick="confirmLogout()">
+                <i class="fas fa-power-off mr-2"></i>Logout
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ✅ PROFESSIONAL LOGOUT DIALOG FUNCTIONS
+function showLogoutDialog() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.add('show');
+    
+    // Prevent body scrolling
+    document.body.style.overflow = 'hidden';
+    
+    // Add escape key listener
+    document.addEventListener('keydown', handleEscapeKey);
+    
+    // Focus on cancel button for accessibility
+    setTimeout(() => {
+        document.querySelector('.btn-cancel').focus();
+    }, 100);
+}
+
+function hideLogoutDialog() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.remove('show');
+    
+    // Restore body scrolling
+    document.body.style.overflow = '';
+    
+    // Remove escape key listener
+    document.removeEventListener('keydown', handleEscapeKey);
+}
+
+function handleEscapeKey(event) {
+    if (event.key === 'Escape') {
+        hideLogoutDialog();
+    }
+}
+
+function confirmLogout() {
+    // Add loading state to logout button
+    const logoutBtn = document.querySelector('.btn-logout');
+    const originalText = logoutBtn.innerHTML;
+    
+    logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Logging out...';
+    logoutBtn.disabled = true;
+    
+    // Simulate a brief delay for better UX then redirect
+    setTimeout(() => {
+        window.location.href = "{% url 'user_logout' %}";
+    }, 800);
+}
+
+// ✅ PREVENT ACCIDENTAL CLICKS OUTSIDE DURING LOADING
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('logoutModal');
+    
+    modal.addEventListener('click', function(event) {
+        // Only close if clicking the overlay, not the modal content
+        if (event.target === modal || event.target.classList.contains('logout-modal-overlay')) {
+            hideLogoutDialog();
+        }
+    });
+});
+</script>
+
 </aside>

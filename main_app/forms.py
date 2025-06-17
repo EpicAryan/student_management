@@ -171,6 +171,14 @@ class FeedbackStaffForm(FormSettings):
     class Meta:
         model = FeedbackStaff
         fields = ['feedback']
+        widgets = {
+            'feedback': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 6,
+                'placeholder': 'Share your feedback, suggestions, or concerns here...',
+                'maxlength': 1000
+            })
+        }
 
 
 class LeaveReportStudentForm(FormSettings):
@@ -213,17 +221,17 @@ class ProfessorEditForm(CustomUserForm):  # Renamed from StaffEditForm
         fields = CustomUserForm.Meta.fields + ['department']  # Updated fields
 
 
-class EditResultForm(FormSettings):
-    batch_list = Batch.objects.all()  # Updated from Batch_list
-    batch_year = forms.ModelChoiceField(  # Updated from Batch_year
-        label="Batch Year", queryset=batch_list, required=True)
+# class EditResultForm(FormSettings):
+#     batch_list = Batch.objects.all()  # Updated from Batch_list
+#     batch_year = forms.ModelChoiceField(  # Updated from Batch_year
+#         label="Batch Year", queryset=batch_list, required=True)
 
-    def __init__(self, *args, **kwargs):
-        super(EditResultForm, self).__init__(*args, **kwargs)
+#     def __init__(self, *args, **kwargs):
+#         super(EditResultForm, self).__init__(*args, **kwargs)
 
-    class Meta:
-        model = TheoryMarks  # Updated from StudentResult
-        fields = ['subject', 'student', 'ca1', 'ca2', 'ca3', 'end_sem']  # Updated field names
+#     class Meta:
+#         model = TheoryMarks  # Updated from StudentResult
+#         fields = ['subject', 'student', 'ca1', 'ca2', 'ca3', 'end_sem']  # Updated field names
 
 
 # Additional forms for the new models
@@ -252,3 +260,145 @@ class LabMarksForm(FormSettings):
     class Meta:
         model = LabMarks
         fields = ['subject', 'student', 'pca1', 'pca2', 'end_sem_practical']
+
+
+class EditResultForm(forms.Form):
+    """Form for editing both theory and lab results"""
+    
+    subject = forms.ModelChoiceField(
+        queryset=Subject.objects.all(),
+        required=True,
+        empty_label="Select Subject",
+        widget=forms.Select(attrs={
+            'class': 'form-control enhanced-select',
+            'id': 'id_subject'
+        }),
+        error_messages={
+            'required': 'Please select a subject.',
+            'invalid_choice': 'Please select a valid subject.'
+        }
+    )
+    
+    batch_year = forms.ModelChoiceField(
+        queryset=Batch.objects.all().select_related('department').order_by('-start_year'),
+        required=True,
+        empty_label="Select Batch Year",
+        widget=forms.Select(attrs={
+            'class': 'form-control enhanced-select',
+            'id': 'id_batch_year'
+        }),
+        error_messages={
+            'required': 'Please select a batch year.',
+            'invalid_choice': 'Please select a valid batch year.'
+        }
+    )
+    
+    student = forms.ModelChoiceField(
+        queryset=Student.objects.none(),  # Will be populated via AJAX
+        required=True,
+        empty_label="Select Student",
+        widget=forms.Select(attrs={
+            'class': 'form-control enhanced-select',
+            'id': 'id_student'
+        }),
+        error_messages={
+            'required': 'Please select a student.',
+            'invalid_choice': 'Please select a valid student.'
+        }
+    )
+    
+    # ✅ FIXED: Use FloatField to match your decimal data
+    # Theory fields - all optional since user might only update some
+    ca1 = forms.FloatField(
+        required=False,
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control enhanced-input',
+            'step': '0.01',
+            'placeholder': 'Enter CA1 Score'
+        })
+    )
+    
+    ca2 = forms.FloatField(
+        required=False,
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control enhanced-input',
+            'step': '0.01',
+            'placeholder': 'Enter CA2 Score'
+        })
+    )
+    
+    ca3 = forms.FloatField(
+        required=False,
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control enhanced-input',
+            'step': '0.01',
+            'placeholder': 'Enter CA3 Score'
+        })
+    )
+    
+    end_sem = forms.FloatField(
+        required=False,
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control enhanced-input',
+            'step': '0.01',
+            'placeholder': 'Enter End Semester Score'
+        })
+    )
+    
+    # Lab fields - all optional
+    pca1 = forms.FloatField(
+        required=False,
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control enhanced-input',
+            'step': '0.01',
+            'placeholder': 'Enter PCA1 Score'
+        })
+    )
+    
+    pca2 = forms.FloatField(
+        required=False,
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control enhanced-input',
+            'step': '0.01',
+            'placeholder': 'Enter PCA2 Score'
+        })
+    )
+    
+    end_sem_practical = forms.FloatField(
+        required=False,
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control enhanced-input',
+            'step': '0.01',
+            'placeholder': 'Enter End Sem Practical Score'
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(EditResultForm, self).__init__(*args, **kwargs)
+        
+    def clean(self):
+        """Custom validation to ensure at least one mark is provided"""
+        cleaned_data = super().clean()
+        
+        # Check if at least one mark field has a value
+        mark_fields = ['ca1', 'ca2', 'ca3', 'end_sem', 'pca1', 'pca2', 'end_sem_practical']
+        has_marks = any(cleaned_data.get(field) is not None for field in mark_fields)
+        
+        if not has_marks:
+            raise forms.ValidationError("Please enter at least one mark to update.")
+        
+        return cleaned_data
