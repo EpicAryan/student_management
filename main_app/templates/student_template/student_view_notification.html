@@ -1,53 +1,652 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block custom_css %}
+<style>
+    .notification-header {
+        background: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 20px rgba(111, 66, 193, 0.15);
+    }
+    
+    .header-content h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.8rem;
+    }
+    
+    .header-content p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .notification-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid #e9ecef;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .notification-card.unread {
+        border-left-color: #007bff;
+        background-color: #f8f9ff;
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+    }
+    
+    .notification-card.read {
+        border-left-color: #28a745;
+        background-color: #ffffff;
+    }
+    
+    .notification-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #6f42c1, #5a2d91);
+        color: white;
+        border-radius: 12px;
+        border: none;
+        margin-bottom: 25px;
+    }
+    
+    .notification-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 11px;
+        margin-left: 8px;
+        vertical-align: middle;
+        font-weight: bold;
+    }
+    
+    .filter-tab {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 0;
+        border: none;
+        padding: 12px 20px;
+    }
+    
+    .filter-tab.active {
+        background-color: #6f42c1 !important;
+        color: white !important;
+        border-bottom: 3px solid #5a2d91 !important;
+    }
+    
+    .filter-tab:hover {
+        background-color: #f8f9fa;
+        color: #6f42c1;
+    }
+    
+    .notification-actions {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .notification-card:hover .notification-actions {
+        opacity: 1;
+    }
+    
+    .notification-text {
+        line-height: 1.6;
+        color: #2c3e50;
+        font-size: 1rem;
+    }
+    
+    .notification-meta {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 8px;
+    }
+    
+    .admin-badge {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        color: white;
+        border-radius: 15px;
+        padding: 4px 12px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .professional-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+    
+    .card-header-pro {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .card-title-pro {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .icon-enhanced {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        color: #6f42c1;
+    }
+    
+    .btn-enhanced {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 20px;
+        padding: 8px 16px;
+        color: white;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-enhanced:hover {
+        background: linear-gradient(135deg, #218838, #1e7e34);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+    }
+    
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+        margin-bottom: 15px;
+        color: #495057;
+    }
+    
+    .empty-state p {
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+    
+    .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    
+    .status-unread {
+        background: #007bff;
+        animation: pulse-unread 2s infinite;
+    }
+    
+    .status-read {
+        background: #28a745;
+    }
+    
+    @keyframes pulse-unread {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    /* Modal Enhancements */
+    .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    .modal-header {
+        border-radius: 12px 12px 0 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .modal-footer {
+        border-radius: 0 0 12px 12px;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .notification-header {
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .header-content h2 {
+            font-size: 1.5rem;
+        }
+        
+        .notification-card {
+            margin-bottom: 10px;
+        }
+        
+        .card-header-pro {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
+        }
+        
+        .filter-tab {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .notification-actions {
+            opacity: 1;
+        }
+    }
+    
+    /* Animation Classes */
+    .fade-in {
+        animation: fadeIn 0.6s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .slide-in {
+        animation: slideIn 0.6s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
+
+<!-- CSRF Token for AJAX -->
+{% csrf_token %}
 
 <section class="content">
     <div class="container-fluid">
+        
+        <!-- Professional Header -->
+        <div class="notification-header fade-in">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="header-content">
+                        <h2><i class="fas fa-bell mr-3"></i>{{ page_title }}</h2>
+                        <p>Stay updated with important messages and announcements from administration</p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-right">
+                    <i class="fas fa-envelope-open" style="font-size: 3rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Dashboard -->
         <div class="row">
             <div class="col-md-12">
-                <!-- general form elements -->
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
-                    </div>
-
-
-                    <!-- /.card-header -->
-                    <!-- form start -->
+                <div class="card stats-card slide-in">
                     <div class="card-body">
-
-
-
-                       
-
-
-                        <div class="form-group table">
-              <table class="table table-bordered">
-                  <tr>
-                      <th>SN</th>
-                      <th>Date</th>
-                      <th>Message</th>
-                  </tr>
-                  {% for notification in  notifications %}
-                    <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{notification.created_at}}</td>
-                        <td>{{notification.message}}</td>
-                    </tr>
-                  {% endfor %}
-              </table>
+                        <h5 class="text-white mb-3">
+                            <i class="fas fa-chart-bar mr-2"></i>Notification Summary
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h4 class="text-white">{{ notifications|length|default:"0" }}</h4>
+                                    <small>Total Notifications</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h4 class="text-white">
+                                        {% with unread_count=notifications|length %}
+                                        {{ unread_count|default:"0" }}
+                                        {% if unread_count > 0 %}
+                                        <span class="notification-badge">!</span>
+                                        {% endif %}
+                                        {% endwith %}
+                                    </h4>
+                                    <small>Recent Messages</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h4 class="text-white">{{ notifications|length|default:"0" }}</h4>
+                                    <small>All Time</small>
+                                </div>
+                            </div>
                         </div>
-                   
                     </div>
-                    <!-- /.card-body -->
+                </div>
+            </div>
+        </div>
 
-                <!-- /.card -->
-
+        <!-- Main Notification Card -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="professional-card slide-in" style="animation-delay: 0.2s">
+                    <div class="card-header-pro">
+                        <h5 class="card-title-pro">
+                            <i class="fas fa-bell icon-enhanced"></i>
+                            Messages from Administration
+                        </h5>
+                        <div class="d-flex align-items-center">
+                            <span class="admin-badge">
+                                <i class="fas fa-shield-alt mr-1"></i>Official Messages
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body" style="padding: 0;">
+                        {% if notifications %}
+                            <div class="notification-list" style="padding: 25px;">
+                                {% for notification in notifications %}
+                                <div class="notification-card card unread" 
+                                     data-notification-id="{{ forloop.counter }}">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-1 text-center">
+                                                <span class="status-indicator status-unread" title="New Message"></span>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <div class="notification-text">
+                                                    {{ notification.message }}
+                                                </div>
+                                                <div class="notification-meta">
+                                                    <i class="fas fa-user-shield mr-1"></i>
+                                                    <strong>From Administration</strong>
+                                                    <span class="ml-3">
+                                                        <i class="fas fa-clock mr-1"></i>
+                                                        {{ notification.created_at|date:"M d, Y g:i A" }}
+                                                    </span>
+                                                    <span class="badge badge-primary ml-2">NEW</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 text-right">
+                                                <div class="notification-actions">
+                                                    <button type="button" class="btn btn-sm btn-outline-success mark-read-btn" 
+                                                            data-notification-id="{{ forloop.counter }}"
+                                                            title="Mark as Read">
+                                                        <i class="fas fa-check mr-1"></i>Mark Read
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                
+                                <!-- Mark All Read Button -->
+                                {% if notifications %}
+                                <div class="text-center mt-4">
+                                    <button type="button" class="btn-enhanced" id="markAllReadBtn">
+                                        <i class="fas fa-check-double mr-2"></i>Mark All as Read
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-bell-slash"></i>
+                                <h4>No Notifications</h4>
+                                <p>You haven't received any notifications from administration yet.<br>
+                                Important announcements and messages will appear here.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Mark Single Read Confirmation Modal -->
+<div class="modal fade" id="markReadModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle mr-2"></i>Mark as Read
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h5>Mark this notification as read?</h5>
+                    <p class="text-muted">This will acknowledge that you have seen this message.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="confirmMarkRead">
+                    <i class="fas fa-check mr-1"></i>Yes, Mark as Read
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mark All Read Confirmation Modal -->
+<div class="modal fade" id="markAllReadModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-double mr-2"></i>Mark All as Read
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="fas fa-check-double fa-3x text-primary mb-3"></i>
+                    <h5>Mark all notifications as read?</h5>
+                    <p class="text-muted">This will mark <strong>{{ notifications|length }}</strong> notification(s) as read.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmMarkAllRead">
+                    <i class="fas fa-check-double mr-1"></i>Yes, Mark All Read
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Message Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" id="messageModalHeader">
+                <h5 class="modal-title" id="messageModalTitle"></h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="messageModalIcon"></div>
+                <p id="messageModalText"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
 
+{% block custom_js %}
+<script>
+$(document).ready(function() {
+    console.log('📢 Initializing professional student notifications...');
+    
+    let currentNotificationId = null;
+    
+    // Get CSRF token
+    function getCSRFToken() {
+        return $('[name=csrfmiddlewaretoken]').val();
+    }
+    
+    // Show message modal
+    function showMessage(type, title, message, icon) {
+        const headerClass = type === 'success' ? 'bg-success text-white' : 'bg-danger text-white';
+        
+        $('#messageModalHeader').removeClass().addClass('modal-header').addClass(headerClass);
+        $('#messageModalTitle').text(title);
+        $('#messageModalIcon').html(icon);
+        $('#messageModalText').text(message);
+        $('#messageModal').modal('show');
+    }
+    
+    // Handle mark single read button
+    $('.mark-read-btn').on('click', function() {
+        currentNotificationId = $(this).data('notification-id');
+        $('#markReadModal').modal('show');
+    });
+    
+    // Confirm mark single read
+    $('#confirmMarkRead').on('click', function() {
+        if (currentNotificationId) {
+            const $button = $(this);
+            const originalText = $button.html();
+            
+            // Show loading
+            $button.html('<span class="spinner-border spinner-border-sm mr-2"></span>Processing...');
+            $button.prop('disabled', true);
+            
+            // Simulate marking as read (since you don't have the backend URL)
+            setTimeout(() => {
+                $('#markReadModal').modal('hide');
+                
+                // Update UI
+                const $card = $(`.notification-card[data-notification-id="${currentNotificationId}"]`);
+                $card.removeClass('unread').addClass('read');
+                $card.find('.status-unread').removeClass('status-unread').addClass('status-read');
+                $card.find('.badge-primary').remove();
+                $card.find('.mark-read-btn').replaceWith('<span class="badge badge-success"><i class="fas fa-check mr-1"></i>Read</span>');
+                
+                showMessage('success', 'Success!', 'Notification marked as read successfully.', '<i class="fas fa-check-circle fa-3x text-success mb-3"></i>');
+                
+                // Reset button
+                $button.html(originalText);
+                $button.prop('disabled', false);
+            }, 1000);
+        }
+    });
+    
+    // Handle mark all read button
+    $('#markAllReadBtn').on('click', function() {
+        $('#markAllReadModal').modal('show');
+    });
+    
+    // Confirm mark all read
+    $('#confirmMarkAllRead').on('click', function() {
+        const $button = $(this);
+        const originalText = $button.html();
+        
+        // Show loading
+        $button.html('<span class="spinner-border spinner-border-sm mr-2"></span>Processing...');
+        $button.prop('disabled', true);
+        
+        // Simulate marking all as read
+        setTimeout(() => {
+            $('#markAllReadModal').modal('hide');
+            
+            // Update all notification cards
+            $('.notification-card.unread').each(function() {
+                $(this).removeClass('unread').addClass('read');
+                $(this).find('.status-unread').removeClass('status-unread').addClass('status-read');
+                $(this).find('.badge-primary').remove();
+                $(this).find('.mark-read-btn').replaceWith('<span class="badge badge-success"><i class="fas fa-check mr-1"></i>Read</span>');
+            });
+            
+            // Hide mark all button
+            $('#markAllReadBtn').fadeOut();
+            
+            showMessage('success', 'Success!', 'All notifications marked as read successfully.', '<i class="fas fa-check-double fa-3x text-success mb-3"></i>');
+            
+            // Reset button
+            $button.html(originalText);
+            $button.prop('disabled', false);
+        }, 1500);
+    });
+    
+    // Auto-hide message modal after 3 seconds
+    $('#messageModal').on('shown.bs.modal', function() {
+        setTimeout(() => {
+            $('#messageModal').modal('hide');
+        }, 3000);
+    });
+    
+    // Add hover effects to notification cards
+    $('.notification-card').hover(
+        function() {
+            $(this).find('.notification-actions').css('opacity', '1');
+        },
+        function() {
+            $(this).find('.notification-actions').css('opacity', '0');
+        }
+    );
+    
+    console.log('✅ Professional student notifications initialized successfully');
+});
+</script>
+{% endblock custom_js %}

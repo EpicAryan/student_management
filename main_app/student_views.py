@@ -56,27 +56,56 @@ def student_home(request):
 
 @csrf_exempt
 def student_view_attendance(request):
-    student = get_object_or_404(Student, user=request.user)  # ✅ FIXED: admin -> user
+    student = get_object_or_404(Student, user=request.user)
+    
     if request.method != 'POST':
-        department = student.department  # ✅ FIXED: get department directly
+        # GET request - show the form
         context = {
-            'subjects': Subject.objects.filter(semester=student.semester),  # ✅ FIXED: course -> semester
+            'subjects': Subject.objects.filter(semester=student.semester),
             'page_title': 'View Attendance'
         }
         return render(request, 'student_template/student_view_attendance.html', context)
+    
     else:
+        # POST request - process the form
         subject_id = request.POST.get('subject')
-        start = request.POST.get('start_date')
-        end = request.POST.get('end_date')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        
+        # Enhanced debugging
+        print(f"DEBUG: Received POST data: subject={subject_id}, start={start_date}, end={end_date}")
+        print(f"DEBUG: All POST data: {dict(request.POST)}")
+        
+        # Enhanced validation
+        if not subject_id:
+            return JsonResponse({'error': 'Subject is required'}, status=400)
+        
+        if not start_date:
+            return JsonResponse({'error': 'Start date is required'}, status=400)
+            
+        if not end_date:
+            return JsonResponse({'error': 'End date is required'}, status=400)
+        
         try:
-            subject = get_object_or_404(Subject, id=subject_id)
-            start_date = datetime.strptime(start, "%Y-%m-%d")
-            end_date = datetime.strptime(end, "%Y-%m-%d")
+            # Validate subject exists and belongs to student's semester
+            subject = get_object_or_404(Subject, id=subject_id, semester=student.semester)
+            
+            # Parse dates
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+            
+            # Validate date range
+            if start_date_obj > end_date_obj:
+                return JsonResponse({'error': 'Start date cannot be later than end date'}, status=400)
+            
+            # Fetch attendance records
             attendance_records = Attendance.objects.filter(
-                date__range=(start_date, end_date), 
-                subject=subject, 
+                date__range=(start_date_obj, end_date_obj),
+                subject=subject,
                 student=student
-            )  # ✅ FIXED: Simplified query
+            ).order_by('date')
+            
+            # Format response
             json_data = []
             for record in attendance_records:
                 data = {
@@ -84,17 +113,25 @@ def student_view_attendance(request):
                     "status": record.status
                 }
                 json_data.append(data)
-            return JsonResponse(json.dumps(json_data), safe=False)
+            
+            print(f"DEBUG: Returning {len(json_data)} attendance records")
+            return JsonResponse(json_data, safe=False)
+            
+        except Subject.DoesNotExist:
+            return JsonResponse({'error': 'Invalid subject selected'}, status=400)
+        except ValueError as e:
+            return JsonResponse({'error': f'Invalid date format: {str(e)}'}, status=400)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            print(f"ERROR in student_view_attendance: {str(e)}")
+            return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)
 
 
 def student_apply_leave(request):
     form = LeaveReportStudentForm(request.POST or None)
-    student = get_object_or_404(Student, user_id=request.user.id)  # ✅ FIXED: Keep user_id for now
+    student = get_object_or_404(Student, user_id=request.user.id)
     context = {
         'form': form,
-        'leave_history': LeaveReportStudent.objects.filter(student=student),
+        'leave_history': LeaveReportStudent.objects.filter(student=student).order_by('-created_at'),
         'page_title': 'Apply for leave'
     }
     if request.method == 'POST':
@@ -102,15 +139,18 @@ def student_apply_leave(request):
             try:
                 obj = form.save(commit=False)
                 obj.student = student
+                # ✅ CRITICAL FIX: Set to_date to same as from_date for single-day leave
+                obj.to_date = obj.from_date
                 obj.save()
                 messages.success(
                     request, "Application for leave has been submitted for review")
                 return redirect(reverse('student_apply_leave'))
-            except Exception:
-                messages.error(request, "Could not submit")
+            except Exception as e:
+                messages.error(request, f"Could not submit: {str(e)}")
         else:
             messages.error(request, "Form has errors!")
     return render(request, "student_template/student_apply_leave.html", context)
+
 
 
 def student_feedback(request):

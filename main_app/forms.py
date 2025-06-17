@@ -187,11 +187,29 @@ class LeaveReportStudentForm(FormSettings):
 
     class Meta:
         model = LeaveReportStudent
-        fields = ['from_date', 'to_date', 'message']  # Updated field names
+        fields = ['from_date', 'message']  # ✅ FIXED: Use existing model fields
         widgets = {
-            'from_date': DateInput(attrs={'type': 'date'}),
-            'to_date': DateInput(attrs={'type': 'date'}),
+            'from_date': DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'id': 'id_date'  # ✅ Use 'id_date' for JavaScript compatibility
+            }),
+            'message': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Please provide a detailed reason for your leave request...',
+                'maxlength': 500,
+                'id': 'id_message'
+            })
         }
+        
+    # ✅ Override field labels to hide the technical field names
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['from_date'].label = 'Leave Date'
+        self.fields['message'].label = 'Reason for Leave'
+
+
 
 
 class FeedbackStudentForm(FormSettings):
@@ -402,3 +420,62 @@ class EditResultForm(forms.Form):
             raise forms.ValidationError("Please enter at least one mark to update.")
         
         return cleaned_data
+
+
+class StudentAttendanceViewForm(FormSettings):
+    subject = forms.ModelChoiceField(
+        queryset=Subject.objects.none(),  # Will be set in __init__
+        empty_label="-- Choose a Subject --",
+        widget=forms.Select(attrs={
+            'class': 'subject-select',
+            'id': 'subject_dropdown'
+        }),
+        error_messages={
+            'required': 'Please select a subject.',
+            'invalid_choice': 'Please select a valid subject.'
+        }
+    )
+    
+    start_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'clean-input',
+            'id': 'start_date'
+        }),
+        error_messages={
+            'required': 'Please select a start date.',
+            'invalid': 'Please enter a valid start date.'
+        }
+    )
+    
+    end_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'clean-input',
+            'id': 'end_date'
+        }),
+        error_messages={
+            'required': 'Please select an end date.',
+            'invalid': 'Please enter a valid end date.'
+        }
+    )
+    
+    def __init__(self, student=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if student:
+            self.fields['subject'].queryset = Subject.objects.filter(semester=student.semester)
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        
+        if start_date and end_date:
+            if start_date > end_date:
+                raise forms.ValidationError("Start date cannot be later than end date.")
+        
+        return cleaned_data
+
+    class Meta:
+        model = Subject  # Just for FormSettings inheritance
+        fields = []  # We're not actually saving to a model

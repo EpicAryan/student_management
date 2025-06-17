@@ -1,287 +1,897 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block custom_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 20px rgba(0, 123, 255, 0.15);
+    }
+    
+    .header-content h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.8rem;
+    }
+    
+    .header-content p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .dashboard-stats {
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        margin-bottom: 25px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--card-color);
+    }
+    
+    .stat-card.total-attendance { --card-color: #17a2b8; }
+    .stat-card.present-percentage { --card-color: #28a745; }
+    .stat-card.absent-percentage { --card-color: #dc3545; }
+    .stat-card.total-subjects { --card-color: #ffc107; }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        color: #6c757d;
+        font-weight: 500;
+        margin-top: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-icon {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 2.5rem;
+        opacity: 0.2;
+        color: var(--card-color);
+    }
+    
+    .chart-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+    }
+    
+    .chart-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0,0,0,0.12);
+    }
+    
+    .chart-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+    }
+    
+    .chart-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .chart-tools {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .chart-tool-btn {
+        background: none;
+        border: none;
+        color: #6c757d;
+        padding: 5px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+    
+    .chart-tool-btn:hover {
+        background: #e9ecef;
+        color: #495057;
+    }
+    
+    .chart-body {
+        padding: 25px;
+        position: relative;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+    
+    .chart-legend {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #f1f3f4;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+    }
+    
+    .welcome-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 25px rgba(102, 126, 234, 0.15);
+    }
+    
+    .welcome-content h4 {
+        margin: 0 0 10px 0;
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+    
+    .welcome-content p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .attendance-summary {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        border-left: 4px solid #007bff;
+    }
+    
+    .summary-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .summary-item {
+        text-align: center;
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .summary-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        display: block;
+    }
+    
+    .summary-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        border-radius: 15px;
+    }
+    
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .quick-stats {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+    
+    .quick-stats h6 {
+        margin: 0 0 15px 0;
+        color: #2c3e50;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    
+    .icon-enhanced {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        color: #007bff;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .header-content h2 {
+            font-size: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+        }
+        
+        .stat-icon {
+            position: static;
+            transform: none;
+            margin-top: 10px;
+            font-size: 2rem;
+        }
+        
+        .chart-body {
+            padding: 15px;
+        }
+        
+        .chart-container {
+            height: 250px;
+        }
+        
+        .chart-header {
+            padding: 15px 20px;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .chart-legend {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .summary-grid {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+    }
+    
+    /* Animation Classes */
+    .fade-in {
+        animation: fadeIn 0.6s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .slide-in {
+        animation: slideIn 0.6s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .slide-in-delay-1 { animation-delay: 0.1s; }
+    .slide-in-delay-2 { animation-delay: 0.2s; }
+    .slide-in-delay-3 { animation-delay: 0.3s; }
+    .slide-in-delay-4 { animation-delay: 0.4s; }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
 <section class="content">
     <div class="container-fluid">
-        <!-- Small boxes (Stat box) -->
-        <div class="row">
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-info">
-                    <div class="inner">
-                        <h3>{{total_attendance}}</h3>
-
-                        <p>Total Attendance</p>
+        
+        <!-- Professional Header -->
+        <div class="dashboard-header fade-in">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="header-content">
+                        <h2><i class="fas fa-tachometer-alt mr-3"></i>Student Dashboard</h2>
+                        <p>Track your academic progress and attendance statistics</p>
                     </div>
-                    <div class="icon">
-                        <i class="ion ion-bag"></i>
-                    </div>
-                    {# <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> #}
+                </div>
+                <div class="col-md-4 text-md-right">
+                    <i class="fas fa-graduation-cap" style="font-size: 3rem; opacity: 0.3;"></i>
                 </div>
             </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-success">
-                    <div class="inner">
-                        <h3>{{ percent_present }}<sup style="font-size: 20px">%</sup></h3>
-
-                        <p>Percentage Present</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-person-add"></i>
-                    </div>
-                    {# <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> #}
-                </div>
-            </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-danger">
-                    <div class="inner">
-                        <h3>{{percent_absent}}<sup style="font-size: 20px">%</sup></h3>
-
-                        <p>Percentage Absent</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-stats-bars"></i>
-                    </div>
-                    {# <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> #}
-                </div>
-            </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-warning">
-                    <div class="inner">
-                        <h3>{{total_subject}}</h3>
-
-                        <p>Total Subject</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-pie-graph"></i>
-                    </div>
-                    {# <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> #}
-                </div>
-            </div>
-            <!-- ./col -->
         </div>
-        <div class="row">
-            <div class="col-lg-6">
-           
-                        <!-- DONUT CHART -->
-                        <div class="card card-secondary">
-                          <div class="card-header">
-                            <h3 class="card-title">{{page_title}}</h3>
-            
-                            <div class="card-tools">
-                              <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                              </button>
-                              <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
-                            </div>
-                          </div>
-                          <div class="card-body">
-                            <canvas id="attendanceData" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                          </div>
-                          <!-- /.card-body -->
-                        </div>
-                        <!-- /.card -->
+
+        <!-- Welcome Card -->
+        <div class="welcome-card fade-in">
+            <div class="welcome-content">
+                <h4><i class="fas fa-user mr-2"></i>Welcome back, {{ request.user.first_name }}!</h4>
+                <p>Here's your academic overview for this semester. Stay on track with your studies and attendance.</p>
             </div>
-                  
+        </div>
+
+        <!-- Enhanced Statistics Cards -->
+        <div class="dashboard-stats">
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card total-attendance slide-in slide-in-delay-1">
+                        <h3 class="stat-number">{{ total_attendance|default:"0" }}</h3>
+                        <p class="stat-label">Total Classes</p>
+                        <i class="fas fa-calendar-check stat-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card present-percentage slide-in slide-in-delay-2">
+                        <h3 class="stat-number">{{ percent_present|default:"0" }}<sup style="font-size: 20px">%</sup></h3>
+                        <p class="stat-label">Attendance Rate</p>
+                        <i class="fas fa-user-check stat-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card absent-percentage slide-in slide-in-delay-3">
+                        <h3 class="stat-number">{{ percent_absent|default:"0" }}<sup style="font-size: 20px">%</sup></h3>
+                        <p class="stat-label">Missed Classes</p>
+                        <i class="fas fa-user-times stat-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card total-subjects slide-in slide-in-delay-4">
+                        <h3 class="stat-number">{{ total_subject|default:"0" }}</h3>
+                        <p class="stat-label">Total Subjects</p>
+                        <i class="fas fa-book stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Charts Section -->
+        <div class="row">
+            <!-- Overall Attendance Chart -->
             <div class="col-lg-6">
-            
-                        <div class="card card-secondary">
-                          <div class="card-header">
-                            <h3 class="card-title">{{page_title}}</h3>
-            
-                            <div class="card-tools">
-                              <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                              </button>
-                              <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+                <div class="chart-card slide-in">
+                    <div class="chart-header">
+                        <h5 class="chart-title">
+                            <i class="fas fa-chart-pie icon-enhanced"></i>
+                            Overall Attendance Overview
+                        </h5>
+                        <div class="chart-tools">
+                            <button type="button" class="chart-tool-btn" data-card-widget="collapse" title="Minimize">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="chart-tool-btn" data-card-widget="maximize" title="Maximize">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container">
+                            <canvas id="attendanceData"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #28a745;"></div>
+                                <span>Present ({{ percent_present|default:"0" }}%)</span>
                             </div>
-                          </div>
-                          <div class="card-body">
-                            <div class="chart">
-                              <canvas id="attendanceStatistics" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                          <!-- /.card-body -->
-                        <!-- /.card -->
-                        </div> 
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #dc3545;"></div>
+                                <span>Absent ({{ percent_absent|default:"0" }}%)</span>
+                            </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject-wise Attendance Chart -->
+            <div class="col-lg-6">
+                <div class="chart-card slide-in" style="animation-delay: 0.2s">
+                    <div class="chart-header">
+                        <h5 class="chart-title">
+                            <i class="fas fa-chart-bar icon-enhanced"></i>
+                            Subject-wise Attendance
+                        </h5>
+                        <div class="chart-tools">
+                            <button type="button" class="chart-tool-btn" data-card-widget="collapse" title="Minimize">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="chart-tool-btn" data-card-widget="maximize" title="Maximize">
+                                <i class="fas fa-expand"></i>
+                            </button>
                         </div>
+                    </div>
+                    <div class="chart-body">
+                        <div class="chart-container">
+                            <canvas id="attendanceStatistics"></canvas>
                         </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #007bff;"></div>
+                                <span>Present</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #6c757d;"></div>
+                                <span>Absent</span>
+                            </div>
                         </div>
-                        </div>  
-                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Summary -->
+        {% if subjects %}
+        <div class="row">
+            <div class="col-12">
+                <div class="attendance-summary slide-in" style="animation-delay: 0.4s">
+                    <h6 class="summary-title">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        Subject Performance Summary
+                    </h6>
+                    <div class="summary-grid">
+                        {% for subject in subjects %}
+                        <div class="summary-item">
+                            <span class="summary-value">{{ subject.subject_name|truncatechars:10 }}</span>
+                            <span class="summary-label">{{ subject.subject_code }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Stats -->
+        <div class="row">
+            <div class="col-12">
+                <div class="quick-stats slide-in" style="animation-delay: 0.6s">
+                    <h6>
+                        <i class="fas fa-info-circle icon-enhanced"></i>
+                        Quick Information
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>Academic Performance:</strong> 
+                                {% if percent_present >= 75 %}
+                                    <span class="text-success">Excellent</span>
+                                {% elif percent_present >= 60 %}
+                                    <span class="text-warning">Good</span>
+                                {% else %}
+                                    <span class="text-danger">Needs Improvement</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Classes Attended:</strong> {{ total_attendance|default:"0" }} sessions</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Subjects Enrolled:</strong> {{ total_subject|default:"0" }} courses</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
 {% endblock content %}
 
 {% block custom_js %}
-  <script>
-$(document).ready(function(){
-
-    //Dataset
-    var subjects = {{data_name|safe}}
-    var data_present = {{data_present}}
-    var data_absent = {{data_absent}}
-
-    //-------------
-    //- DONUT CHART -
-    var attendanceDataCanvas = $('#attendanceData').get(0).getContext('2d')
-    var donutData        = {
-      labels: [
-         'Present', 'Absent'
-      ],
-      datasets: [
-        {
-          data: [{{percent_present}}, {{percent_absent}}],
-          backgroundColor : ['#00a65a','#f56954'],
-        }
-      ]
-    }
-    var donutOptions     = {
-      maintainAspectRatio : false,
-      responsive : true,
-    }
-    var attendanceData = new Chart(attendanceDataCanvas, {
-      type: 'doughnut',
-      data: donutData,
-      options: donutOptions      
-    });
-
-    //attendanceStatistics
-//Bar Chart
-var areaChartData = {
-    labels  : subjects,
-    datasets: [
-    {
-        label               : 'Present In Class',
-        backgroundColor     : 'rgba(60,141,188,0.9)',
-        borderColor         : 'rgba(60,141,188,0.8)',
-        pointRadius          : false,
-        pointColor          : '#3b8bba',
-        pointStrokeColor    : 'rgba(60,141,188,1)',
-        pointHighlightFill  : '#fff',
-        pointHighlightStroke: 'rgba(60,141,188,1)',
-        data                : data_present
-      },
-
-      {
-        label               : 'Absent In Class',
-        backgroundColor     : 'rgba(210, 214, 222, 1)',
-        borderColor         : 'rgba(210, 214, 222, 1)',
-        pointRadius         : false,
-        pointColor          : 'rgba(210, 214, 222, 1)',
-        pointStrokeColor    : '#c1c7d1',
-        pointHighlightFill  : '#fff',
-        pointHighlightStroke: 'rgba(220,220,220,1)',
-        data                : data_absent
-      },
-    ]
-  }
-var barChartCanvas = $('#attendanceStatistics').get(0).getContext('2d')
-var barChartData = jQuery.extend(true, {}, areaChartData)
-var temp = areaChartData.datasets[0]
-barChartData.datasets[0] = temp
-var barChartOptions = {
-  responsive              : true,
-  maintainAspectRatio     : false,
-  datasetFill             : false
-}
-
-var barChart = new Chart(barChartCanvas, {
-  type: 'bar', 
-  data: barChartData,
-  options: barChartOptions
-})
-
- 
-})
-
-  </script>
-        <!-- The core Firebase JS SDK is always required and must be listed first -->
-        <script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-app.js"></script>
-
-        <!-- TODO: Add SDKs for Firebase products that you want to use
-         https://firebase.google.com/docs/web/setup#available-libraries -->
-        <script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-analytics.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-messaging.js"></script>
+<script>
+$(document).ready(function() {
+    console.log('📊 Initializing professional student dashboard...');
     
-    
-        <script>
-            // Your web app's Firebase configuration
-            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-            var firebaseConfig = {
-                apiKey: "AIzaSyBarDWWHTfTMSrtc5Lj3Cdw5dEvjAkFwtM",
-                authDomain: "sms-with-django.firebaseapp.com",
-                databaseURL: "https://sms-with-django.firebaseio.com",
-                projectId: "sms-with-django",
-                storageBucket: "sms-with-django.appspot.com",
-                messagingSenderId: "945324593139",
-                appId: "1:945324593139:web:03fa99a8854bbd38420c86",
-                measurementId: "G-2F2RXTL9GT"
-            };
-            // Initialize Firebase
-            firebase.initializeApp(firebaseConfig)
-            const messaging = firebase.messaging();
-            function InitializeFireBaseMessaging() {
-                messaging
-                    .requestPermission()
-                    .then(function () {
-                        console.log("Notification Permission");
-                        return messaging.getToken();
-                    })
-                    .then(function (token) {
-                        console.log("Token : " + token);
-                        sendToServer(token);
-                    })
-                    .catch(function (reason) {
-                        console.log(reason)
-                    })
+    // Show loading for charts
+    function showChartLoading(containerId) {
+        const container = document.getElementById(containerId).parentElement;
+        const overlay = document.createElement('div');
+        overlay.className = 'loading-overlay';
+        overlay.innerHTML = '<div class="loading-spinner"></div>';
+        container.style.position = 'relative';
+        container.appendChild(overlay);
+        
+        setTimeout(() => {
+            if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
             }
-            messaging.onMessage(function (payload) {
-                const notificationOption = {
-                    body: payload.notification.body,
-                    icon: payload.notification.icon,
+        }, 1000);
+    }
     
-                }
-                if (Notification.permission == 'granted') {
-                    var notification = new Notification(payload.notification.title, notificationOption);
-                    notification.onclick = function (event) {
-                        event.preventDefault();
-                        window.open(payload.notification.click_action, "_blank");
-                        notification.close();
+    // Enhanced error handling for chart data
+    try {
+        // Dataset with fallbacks
+        var subjects = {{ data_name|safe }} || [];
+        var data_present = {{ data_present }} || [];
+        var data_absent = {{ data_absent }} || [];
+        var percent_present = {{ percent_present|default:"0" }};
+        var percent_absent = {{ percent_absent|default:"0" }};
+        
+        console.log('📊 Chart data loaded:', {
+            subjects: subjects.length,
+            present_data: data_present.length,
+            absent_data: data_absent.length,
+            present_percent: percent_present,
+            absent_percent: percent_absent
+        });
+        
+        // Show loading
+        showChartLoading('attendanceData');
+        showChartLoading('attendanceStatistics');
+        
+        // Enhanced Donut Chart
+        var attendanceDataCanvas = $('#attendanceData').get(0).getContext('2d');
+        var donutData = {
+            labels: ['Present', 'Absent'],
+            datasets: [{
+                data: [percent_present, percent_absent],
+                backgroundColor: ['#28a745', '#dc3545'],
+                borderWidth: 3,
+                borderColor: '#ffffff',
+                hoverBorderWidth: 5,
+                hoverBorderColor: '#ffffff'
+            }]
+        };
+        
+        var donutOptions = {
+            maintainAspectRatio: false,
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false // We have custom legend
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#dddddd',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '%';
+                        }
                     }
                 }
-                console.log(payload);
-            });
-            messaging.onTokenRefresh(function () {
-                messaging.getToken()
-                    .then(function (newToken) {
-                        console.log("New Token : " + newToken);
-                        sendToServer(newToken);
-  
-                    })
-                    .catch(function (reason) {
-                        console.log(reason)
-                    })
-            })
-    
-            function sendToServer(token){
-              $.ajax({
-                url: "{% url 'student_fcmtoken' %}",
-                type: 'POST',
-                data: {
-                    token: token,
-                }
-            }).done(function (response) {
-               
-      
-               
-            }).fail(function (response) {
-            })
-  
+            },
+            cutout: '60%',
+            animation: {
+                animateRotate: true,
+                duration: 2000
             }
+        };
+        
+        var attendanceChart = new Chart(attendanceDataCanvas, {
+            type: 'doughnut',
+            data: donutData,
+            options: donutOptions
+        });
+        
+        // Enhanced Bar Chart
+        var areaChartData = {
+            labels: subjects.length > 0 ? subjects : ['No Data'],
+            datasets: [{
+                label: 'Present',
+                backgroundColor: '#007bff',
+                borderColor: '#0056b3',
+                borderWidth: 2,
+                data: data_present.length > 0 ? data_present : [0]
+            }, {
+                label: 'Absent',
+                backgroundColor: '#6c757d',
+                borderColor: '#5a6268',
+                borderWidth: 2,
+                data: data_absent.length > 0 ? data_absent : [0]
+            }]
+        };
+        
+        var barChartCanvas = $('#attendanceStatistics').get(0).getContext('2d');
+        var barChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false // We have custom legend
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#dddddd',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#f1f3f4'
+                    },
+                    ticks: {
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        };
+        
+        var barChart = new Chart(barChartCanvas, {
+            type: 'bar',
+            data: areaChartData,
+            options: barChartOptions
+        });
+        
+        console.log('✅ Charts initialized successfully');
+        
+    } catch (error) {
+        console.error('❌ Error initializing charts:', error);
+        
+        // Show error state for charts
+        ['attendanceData', 'attendanceStatistics'].forEach(function(chartId) {
+            const canvas = document.getElementById(chartId);
+            const container = canvas.parentElement;
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #6c757d;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <p>Chart could not be loaded</p>
+                    <small>Please refresh the page to try again</small>
+                </div>
+            `;
+        });
+    }
+    
+    // Enhanced card tools functionality
+    $('[data-card-widget="collapse"]').on('click', function() {
+        const card = $(this).closest('.chart-card');
+        const body = card.find('.chart-body');
+        const icon = $(this).find('i');
+        
+        if (body.is(':visible')) {
+            body.slideUp(300);
+            icon.removeClass('fa-minus').addClass('fa-plus');
+            $(this).attr('title', 'Expand');
+        } else {
+            body.slideDown(300);
+            icon.removeClass('fa-plus').addClass('fa-minus');
+            $(this).attr('title', 'Minimize');
+        }
+    });
+    
+    $('[data-card-widget="maximize"]').on('click', function() {
+        const card = $(this).closest('.chart-card');
+        
+        if (card.hasClass('maximized')) {
+            card.removeClass('maximized');
+            card.css({
+                'position': '',
+                'top': '',
+                'left': '',
+                'width': '',
+                'height': '',
+                'z-index': ''
+            });
+            $(this).find('i').removeClass('fa-compress').addClass('fa-expand');
+            $(this).attr('title', 'Maximize');
+        } else {
+            card.addClass('maximized');
+            card.css({
+                'position': 'fixed',
+                'top': '20px',
+                'left': '20px',
+                'width': 'calc(100vw - 40px)',
+                'height': 'calc(100vh - 40px)',
+                'z-index': '9999'
+            });
+            $(this).find('i').removeClass('fa-expand').addClass('fa-compress');
+            $(this).attr('title', 'Restore');
+        }
+    });
+    
+    console.log('✅ Professional student dashboard initialized successfully');
+});
+
+// Enhanced Firebase Configuration with Error Handling
+try {
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyBarDWWHTfTMSrtc5Lj3Cdw5dEvjAkFwtM",
+        authDomain: "sms-with-django.firebaseapp.com",
+        databaseURL: "https://sms-with-django.firebaseio.com",
+        projectId: "sms-with-django",
+        storageBucket: "sms-with-django.appspot.com",
+        messagingSenderId: "945324593139",
+        appId: "1:945324593139:web:03fa99a8854bbd38420c86",
+        measurementId: "G-2F2RXTL9GT"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+    
+    function InitializeFireBaseMessaging() {
+        messaging
+            .requestPermission()
+            .then(function() {
+                console.log("📱 Notification Permission Granted");
+                return messaging.getToken();
+            })
+            .then(function(token) {
+                console.log("🔑 FCM Token:", token);
+                sendToServer(token);
+            })
+            .catch(function(reason) {
+                console.warn("❌ Firebase messaging error:", reason);
+            });
+    }
+    
+    messaging.onMessage(function(payload) {
+        const notificationOption = {
+            body: payload.notification.body,
+            icon: payload.notification.icon || '/static/images/notification-icon.png',
+            badge: '/static/images/badge-icon.png',
+            tag: 'student-notification',
+            requireInteraction: true
+        };
+        
+        if (Notification.permission === 'granted') {
+            var notification = new Notification(payload.notification.title, notificationOption);
+            notification.onclick = function(event) {
+                event.preventDefault();
+                window.focus();
+                if (payload.notification.click_action) {
+                    window.open(payload.notification.click_action, "_blank");
+                }
+                notification.close();
+            };
             
-            InitializeFireBaseMessaging();
-        </script>
+            // Auto close after 5 seconds
+            setTimeout(() => {
+                notification.close();
+            }, 5000);
+        }
+        
+        console.log("📬 Message received:", payload);
+    });
+    
+    messaging.onTokenRefresh(function() {
+        messaging.getToken()
+            .then(function(newToken) {
+                console.log("🔄 New FCM Token:", newToken);
+                sendToServer(newToken);
+            })
+            .catch(function(reason) {
+                console.warn("❌ Token refresh error:", reason);
+            });
+    });
+    
+    function sendToServer(token) {
+        $.ajax({
+            url: "{% url 'student_fcmtoken' %}",
+            type: 'POST',
+            data: {
+                token: token,
+                csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+            }
+        }).done(function(response) {
+            console.log("✅ FCM token sent to server successfully");
+        }).fail(function(response) {
+            console.warn("❌ Failed to send FCM token to server");
+        });
+    }
+    
+    // Initialize Firebase Messaging
+    InitializeFireBaseMessaging();
+    
+} catch (error) {
+    console.warn("⚠️ Firebase initialization failed:", error);
+}
+</script>
 {% endblock custom_js %}
