@@ -1,277 +1,720 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block custom_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 30px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+    }
+    
+    .welcome-section h2 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .welcome-section p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+    
+    .stats-container {
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        border: none;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .stat-card.students {
+        border-left: 5px solid #3498db;
+    }
+    
+    .stat-card.attendance {
+        border-left: 5px solid #2ecc71;
+    }
+    
+    .stat-card.leave {
+        border-left: 5px solid #f39c12;
+    }
+    
+    .stat-card.subjects {
+        border-left: 5px solid #e74c3c;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: #7f8c8d;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-icon {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        font-size: 2.5rem;
+        opacity: 0.1;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        border: none;
+        overflow: hidden;
+    }
+    
+    .chart-header {
+        background: #f8f9fa;
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .chart-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .chart-body {
+        padding: 25px;
+    }
+    
+    .quick-actions {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .quick-actions h5 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    
+    .action-btn {
+        display: inline-block;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        margin: 5px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        border: none;
+        font-size: 0.9rem;
+    }
+    
+    .action-btn:hover {
+        background: linear-gradient(135deg, #5a6fd8, #6a5acd);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .action-btn.primary {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+    }
+    
+    .action-btn.success {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+    }
+    
+    .action-btn.warning {
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+    }
+    
+    .action-btn.info {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+    }
+    
+    .recent-activity {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .activity-item {
+        padding: 15px 0;
+        border-bottom: 1px solid #f1f2f6;
+        display: flex;
+        align-items: center;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 1.1rem;
+    }
+    
+    .activity-icon.success {
+        background: rgba(46, 204, 113, 0.1);
+        color: #2ecc71;
+    }
+    
+    .activity-icon.info {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+    }
+    
+    .activity-icon.warning {
+        background: rgba(243, 156, 18, 0.1);
+        color: #f39c12;
+    }
+    
+    .activity-content h6 {
+        margin: 0;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.95rem;
+    }
+    
+    .activity-content p {
+        margin: 0;
+        color: #7f8c8d;
+        font-size: 0.85rem;
+    }
+    
+    .progress-section {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .progress-item {
+        margin-bottom: 20px;
+    }
+    
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .progress-bar-container {
+        width: 100%;
+        height: 8px;
+        background: #f1f2f6;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.8s ease;
+    }
+    
+    .notification-bell {
+        position: relative;
+        color: white;
+        font-size: 1.3rem;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    
+    .notification-bell:hover {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+    }
+    
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .department-info {
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .welcome-section h2 {
+            font-size: 1.8rem;
+        }
+        
+        .stat-card {
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            margin-bottom: 20px;
+        }
+        
+        .action-btn {
+            display: block;
+            margin: 5px 0;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
+
 <section class="content">
     <div class="container-fluid">
-        <!-- Small boxes (Stat box) -->
-        <div class="row">
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-info">
-                    <div class="inner">
-                        <h3>{{total_students}}</h3>
-
-                        <p>Total Students</p>
+        
+        <!-- Professional Header -->
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="welcome-section">
+                        <h2>Welcome back, {{ user.first_name }}!</h2>
+                        <p>{{ page_title }}</p>
+                        <div class="department-info">
+                            <i class="fas fa-building mr-2"></i>
+                            Department: {{ user.professor.department.dept_name }}
+                        </div>
                     </div>
-                    <div class="icon">
-                        <i class="ion ion-bag"></i>
+                </div>
+                <div class="col-md-4 text-md-right">
+                    <div class="d-flex align-items-center justify-content-md-end">
+                        <a href="{% url 'staff_view_notification' %}" class="notification-bell mr-3">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">{{ user.professor.notificationstaff_set.filter|length }}</span>
+                        </a>
+                        <span class="current-time" id="currentTime"></span>
                     </div>
-                   
                 </div>
             </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-success">
-                    <div class="inner">
-                        <h3>{{total_attendance}}</h3>
-
-                        <p>Total Attendance Taken</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-stats-bars"></i>
-                    </div>
-                   
-                </div>
-            </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-warning">
-                    <div class="inner">
-                        <h3>{{total_leave}}</h3>
-
-                        <p>Total Leave Applied</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-person-add"></i>
-                    </div>
-                   
-                </div>
-            </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-danger">
-                    <div class="inner">
-                        <h3>{{total_subject}}</h3>
-
-                        <p>Total Subjects</p>
-                    </div>
-                    <div class="icon">
-                        <i class="ion ion-pie-graph"></i>
-                    </div>
-                   
-                </div>
-            </div>
-            <!-- ./col -->
         </div>
-        <!-- /.row -->
-        <!-- Main row -->
+
+        <!-- Enhanced Statistics Cards -->
+        <div class="stats-container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card students" onclick="window.location.href='#'">
+                        <div class="stat-number">{{total_students}}</div>
+                        <div class="stat-label">Total Students</div>
+                        <i class="fas fa-user-graduate stat-icon"></i>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card attendance" onclick="window.location.href='{% url 'staff_update_attendance' %}'">
+                        <div class="stat-number">{{total_attendance}}</div>
+                        <div class="stat-label">Attendance Records</div>
+                        <i class="fas fa-check-circle stat-icon"></i>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card leave" onclick="window.location.href='{% url 'staff_apply_leave' %}'">
+                        <div class="stat-number">{{total_leave}}</div>
+                        <div class="stat-label">Leave Applications</div>
+                        <i class="fas fa-calendar-times stat-icon"></i>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-card subjects" onclick="window.location.href='#'">
+                        <div class="stat-number">{{total_subject}}</div>
+                        <div class="stat-label">Total Subjects</div>
+                        <i class="fas fa-book stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h5><i class="fas fa-bolt mr-2"></i>Quick Actions</h5>
+            <a href="{% url 'staff_take_attendance' %}" class="action-btn success">
+                <i class="fas fa-user-check mr-2"></i>Take Attendance
+            </a>
+            <a href="{% url 'staff_add_result' %}" class="action-btn primary">
+                <i class="fas fa-plus-circle mr-2"></i>Add Results
+            </a>
+            <a href="{% url 'staff_edit_result' %}" class="action-btn warning">
+                <i class="fas fa-edit mr-2"></i>Edit Results
+            </a>
+            <a href="{% url 'staff_apply_leave' %}" class="action-btn info">
+                <i class="fas fa-calendar-plus mr-2"></i>Apply Leave
+            </a>
+            <a href="{% url 'staff_feedback' %}" class="action-btn">
+                <i class="fas fa-comment mr-2"></i>Send Feedback
+            </a>
+            <a href="{% url 'staff_view_profile' %}" class="action-btn">
+                <i class="fas fa-user-cog mr-2"></i>Update Profile
+            </a>
+        </div>
+
+        <!-- Charts and Analytics -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="chart-container mb-4">
+                    <div class="chart-header">
+                        <h5 class="chart-title">
+                            <i class="fas fa-chart-bar mr-2"></i>Attendance by Subject
+                        </h5>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="barChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="chart-container mb-4">
+                    <div class="chart-header">
+                        <h5 class="chart-title">
+                            <i class="fas fa-chart-pie mr-2"></i>Overview
+                        </h5>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="pieChart" style="height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity and Progress -->
         <div class="row">
             <div class="col-md-6">
-                <!-- LINE CHART -->
-                <div class="card card-secondary">
-                  <div class="card-header">
-                    <h3 class="card-title">{{page_title}}</h3>
-    
-                    <div class="card-tools">
-                      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                      </button>
-                      <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+                <div class="recent-activity">
+                    <h5><i class="fas fa-clock mr-2"></i>Recent Activity</h5>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h6>Profile Active</h6>
+                            <p>Your staff profile is active and functional</p>
+                        </div>
                     </div>
-                  </div>
-                  <div class="card-body">
-                    <div class="chart">
-                      <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon info">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h6>Subjects Assigned</h6>
+                            <p>You have {{total_subject}} subject{% if total_subject != 1 %}s{% endif %} assigned to you</p>
+                        </div>
                     </div>
-                  </div></div>
-                  <!-- /.card-body -->
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon warning">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h6>Students in Department</h6>
+                            <p>{{total_students}} student{% if total_students != 1 %}s{% endif %} in your department</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="card card-secondary">
-              <div class="card-header">
-                <h3 class="card-title">{{page_title}}</h3>
-
-                <div class="card-tools">
-                  <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                  </button>
-                  <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="chart">
-                  <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                </div>
-              </div>
-              <!-- /.card-body -->
             </div>
+            
+            <div class="col-md-6">
+                <div class="progress-section">
+                    <h5><i class="fas fa-tasks mr-2"></i>Quick Stats</h5>
+                    
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Subjects Teaching</span>
+                            <span>{{total_subject}}</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: {% if total_subject > 0 %}{{ total_subject|floatformat:0 }}{% else %}0{% endif %}%; background: #2ecc71;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Attendance Records</span>
+                            <span>{{total_attendance}}</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: {% if total_attendance > 0 %}75{% else %}0{% endif %}%; background: #3498db;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Leave Applications</span>
+                            <span>{{total_leave}}</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: {% if total_leave > 0 %}{{ total_leave|add:20 }}{% else %}5{% endif %}%; background: #f39c12;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{% url 'staff_view_profile' %}" class="action-btn">
+                            <i class="fas fa-user mr-2"></i>View Full Profile
+                        </a>
+                    </div>
                 </div>
-            <!-- right col -->
+            </div>
         </div>
-        <!-- /.row (main row) -->
-    </div><!-- /.container-fluid -->
+    </div>
 </section>
 {% endblock content %}
 
 {% block custom_js %}
-  <script>
-      $(document).ready(function(){
-        var donutData        = {
-            labels: ['Attendance', 'Leave'],
-            datasets: [
-              {
-                data:[{{total_attendance}}, {{total_leave}}],
-                backgroundColor : ['#00a65a', '#f39c12',],
-              }
-            ]
-          }
-        var pieChartCanvas = $('#pieChart').get(0).getContext('2d')
-        var pieData        = donutData;
-        var pieOptions     = {
-          maintainAspectRatio : false,
-          responsive : true,
-        }
-        //Create pie or douhnut chart
-        // You can switch between pie and douhnut using the method below.
-        var pieChart = new Chart(pieChartCanvas, {
-          type: 'pie',
-          data: pieData,
-          options: pieOptions      
+<script>
+$(document).ready(function() {
+    // Real-time clock
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
         });
+        $('#currentTime').text(timeString);
+    }
+    
+    updateTime();
+    setInterval(updateTime, 60000);
+    
+    // Enhanced Pie Chart
+    var pieCtx = $('#pieChart').get(0).getContext('2d');
+    var pieChart = new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Attendance Records', 'Leave Applications', 'Subjects'],
+            datasets: [{
+                data: [{{total_attendance}}, {{total_leave}}, {{total_subject}}],
+                backgroundColor: ['#2ecc71', '#f39c12', '#e74c3c'],
+                borderWidth: 0,
+                hoverBorderWidth: 3,
+                hoverBorderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 11,
+                            weight: '500'
+                        }
+                    }
+                }
+            }
+        }
+    });
 
-        var subject_list = {{ subject_list|safe|escape }};
-        var attendance_list = {{ attendance_list }};
-  
-            var barChartData = {
-      labels  : subject_list,
-      datasets: [
-      {
-        label               : 'Attendance Per Subject',
-        backgroundColor     : '#6c757d',
-        borderColor         : 'rgba(60,141,188,0.8)',
-        pointRadius          : false,
-        pointColor          : '#3b8bba',
-        pointStrokeColor    : 'rgba(60,141,188,1)',
-        pointHighlightFill  : '#fff',
-        pointHighlightStroke: 'rgba(60,141,188,1)',
-        data                : attendance_list
-      }, 
-      
-      ]
-    }
-        var barChartCanvas = $('#barChart').get(0).getContext('2d')
-        var temp0 = barChartData.datasets[0]
-        //var temp1 = areaChartData.datasets[1]
-        barChartData.datasets[0] = temp0
-       // barChartData.datasets[1] = temp0
+    // Enhanced Bar Chart
+    var subject_list = {{ subject_list|safe }};
+    var attendance_list = {{ attendance_list }};
     
-    var stackedBarChartOptions = {
-      responsive              : true,
-      maintainAspectRatio     : false,
-      scales: {
-        xAxes: [{
-          stacked: true,
-        }],
-        yAxes: [{
-          stacked: true
-        }]
-      }
-    }
+    var barCtx = $('#barChart').get(0).getContext('2d');
+    var barChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: subject_list,
+            datasets: [{
+                label: 'Attendance Count',
+                data: attendance_list,
+                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                borderColor: 'rgba(102, 126, 234, 1)',
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
     
-        var barChart = new Chart(barChartCanvas, {
-          type: 'bar', 
-          data: barChartData,
-          options: stackedBarChartOptions
+    // Card hover animations
+    $('.stat-card').hover(
+        function() {
+            $(this).find('.stat-icon').css('opacity', '0.2');
+        },
+        function() {
+            $(this).find('.stat-icon').css('opacity', '0.1');
+        }
+    );
+    
+    // Add click effects for stat cards
+    $('.stat-card').click(function() {
+        $(this).addClass('clicked');
+        setTimeout(() => {
+            $(this).removeClass('clicked');
+        }, 200);
+    });
+});
+
+// Firebase configuration (keeping your existing setup)
+var firebaseConfig = {
+    apiKey: "AIzaSyBarDWWHTfTMSrtc5Lj3Cdw5dEvjAkFwtM",
+    authDomain: "sms-with-django.firebaseapp.com",
+    databaseURL: "https://sms-with-django.firebaseio.com",
+    projectId: "sms-with-django",
+    storageBucket: "sms-with-django.appspot.com",
+    messagingSenderId: "945324593139",
+    appId: "1:945324593139:web:03fa99a8854bbd38420c86",
+    measurementId: "G-2F2RXTL9GT"
+};
+
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+
+function InitializeFireBaseMessaging() {
+    messaging.requestPermission()
+        .then(function() {
+            return messaging.getToken();
         })
-      })
+        .then(function(token) {
+            sendToServer(token);
+        })
+        .catch(function(reason) {
+            console.log(reason);
+        });
+}
 
+messaging.onMessage(function(payload) {
+    const notificationOption = {
+        body: payload.notification.body,
+        icon: payload.notification.icon,
+    };
     
-  </script>
-      <!-- The core Firebase JS SDK is always required and must be listed first -->
-      <script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-app.js"></script>
+    if (Notification.permission == 'granted') {
+        var notification = new Notification(payload.notification.title, notificationOption);
+        notification.onclick = function(event) {
+            event.preventDefault();
+            window.open(payload.notification.click_action, "_blank");
+            notification.close();
+        };
+    }
+});
 
-      <!-- TODO: Add SDKs for Firebase products that you want to use
-       https://firebase.google.com/docs/web/setup#available-libraries -->
-      <script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-analytics.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-messaging.js"></script>
-  
-  
-      <script>
-          // Your web app's Firebase configuration
-          // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-          var firebaseConfig = {
-              apiKey: "AIzaSyBarDWWHTfTMSrtc5Lj3Cdw5dEvjAkFwtM",
-              authDomain: "sms-with-django.firebaseapp.com",
-              databaseURL: "https://sms-with-django.firebaseio.com",
-              projectId: "sms-with-django",
-              storageBucket: "sms-with-django.appspot.com",
-              messagingSenderId: "945324593139",
-              appId: "1:945324593139:web:03fa99a8854bbd38420c86",
-              measurementId: "G-2F2RXTL9GT"
-          };
-          // Initialize Firebase
-          firebase.initializeApp(firebaseConfig)
-          const messaging = firebase.messaging();
-          function InitializeFireBaseMessaging() {
-              messaging
-                  .requestPermission()
-                  .then(function () {
-                      console.log("Notification Permission");
-                      return messaging.getToken();
-                  })
-                  .then(function (token) {
-                      console.log("Token : " + token);
-                      sendToServer(token);
-                  })
-                  .catch(function (reason) {
-                      console.log(reason)
-                  })
-          }
-          messaging.onMessage(function (payload) {
-              const notificationOption = {
-                  body: payload.notification.body,
-                  icon: payload.notification.icon,
-  
-              }
-              if (Notification.permission == 'granted') {
-                  var notification = new Notification(payload.notification.title, notificationOption);
-                  notification.onclick = function (event) {
-                      event.preventDefault();
-                      window.open(payload.notification.click_action, "_blank");
-                      notification.close();
-                  }
-              }
-              console.log(payload);
-          });
-          messaging.onTokenRefresh(function () {
-              messaging.getToken()
-                  .then(function (newToken) {
-                      console.log("New Token : " + newToken);
-                      sendToServer(newToken);
+messaging.onTokenRefresh(function() {
+    messaging.getToken()
+        .then(function(newToken) {
+            sendToServer(newToken);
+        })
+        .catch(function(reason) {
+            console.log(reason);
+        });
+});
 
-                  })
-                  .catch(function (reason) {
-                      console.log(reason)
-                  })
-          })
-  
-          function sendToServer(token){
-            $.ajax({
-              url: "{% url 'staff_fcmtoken' %}",
-              type: 'POST',
-              data: {
-                  token: token,
-              }
-          }).done(function (response) {
-   
-             
-          }).fail(function (response) {
-          })
+function sendToServer(token) {
+    $.ajax({
+        url: "{% url 'staff_fcmtoken' %}",
+        type: 'POST',
+        data: {
+            token: token,
+        }
+    });
+}
 
-          }
-          
-          InitializeFireBaseMessaging();
-      </script>
+InitializeFireBaseMessaging();
+</script>
+
+<!-- Firebase Scripts -->
+<script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-messaging.js"></script>
 {% endblock custom_js %}
+

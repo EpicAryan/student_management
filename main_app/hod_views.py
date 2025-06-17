@@ -9,6 +9,8 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import UpdateView
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 from .forms import *
 from .models import *
@@ -534,38 +536,136 @@ def view_student_leave(request):
 
 
 def admin_view_attendance(request):
-    subjects = Subject.objects.all()
-    batches = Batch.objects.all()  # ✅ FIXED: Batchs -> batches
+    """Professional admin attendance view with better organization"""
+    subjects = Subject.objects.all().order_by('subject_name')
+    batches = Batch.objects.all().order_by('-start_year')
+    
+    # Get recent statistics
+    today = timezone.now().date()
+    recent_attendance = Attendance.objects.filter(
+        date__gte=today - timedelta(days=7)
+    )
+    
     context = {
         'subjects': subjects,
-        'batches': batches,  # ✅ FIXED
-        'page_title': 'View Attendance'
+        'batches': batches,
+        'page_title': 'View Attendance Records',
+        'total_subjects': subjects.count(),
+        'total_batches': batches.count(),
+        'recent_records': recent_attendance.count(),
+        'today': today.strftime('%Y-%m-%d')
     }
-
     return render(request, "hod_template/admin_view_attendance.html", context)
+
 
 
 @csrf_exempt
 def get_admin_attendance(request):
-    subject_id = request.POST.get('subject')
-    batch_id = request.POST.get('batch')  # ✅ FIXED: Batch -> batch
-    attendance_date = request.POST.get('attendance_date')  # ✅ SIMPLIFIED
+    """Enhanced attendance fetching with better error handling"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
     try:
-        subject = get_object_or_404(Subject, id=subject_id)
-        batch = get_object_or_404(Batch, id=batch_id)  # ✅ FIXED
-        # Simplified attendance logic - you may need to adjust based on your attendance structure
-        attendance_records = Attendance.objects.filter(
-            subject=subject, date=attendance_date)
-        json_data = []
-        for record in attendance_records:
-            data = {
-                "status": str(record.status),
-                "name": str(record.student)
-            }
-            json_data.append(data)
-        return JsonResponse(json.dumps(json_data), safe=False)
+        subject_id = request.POST.get('subject')
+        batch_id = request.POST.get('batch')
+        attendance_date = request.POST.get('attendance_date')
+        
+        # Validate required fields
+        if not subject_id or not batch_id:
+            return JsonResponse({'error': 'Subject and batch are required'}, status=400)
+        
+        subject = get_object_or_404(Subject, pk=subject_id)
+        batch = get_object_or_404(Batch, pk=batch_id)
+        
+        # If no specific date, return available dates
+        if not attendance_date:
+            # Get all dates where attendance was taken for this subject and batch
+            attendance_dates = Attendance.objects.filter(
+                subject=subject,
+                student__batch=batch
+            ).values('date').distinct().order_by('-date')
+            
+            json_data = []
+            for entry in attendance_dates:
+                date_obj = entry['date']
+                
+                # Get attendance summary for this date
+                total_students = Attendance.objects.filter(
+                    subject=subject,
+                    student__batch=batch,
+                    date=date_obj
+                ).count()
+                
+                present_count = Attendance.objects.filter(
+                    subject=subject,
+                    student__batch=batch,
+                    date=date_obj,
+                    status=True
+                ).count()
+                
+                absent_count = total_students - present_count
+                
+                json_data.append({
+                    'id': date_obj.strftime('%Y-%m-%d'),
+                    'attendance_date': date_obj.strftime('%B %d, %Y (%A)'),
+                    'date': date_obj.strftime('%Y-%m-%d'),
+                    'total_students': total_students,
+                    'present_count': present_count,
+                    'absent_count': absent_count,
+                    'percentage': round((present_count / total_students * 100) if total_students > 0 else 0, 1)
+                })
+            
+            return JsonResponse(json_data, safe=False)
+        
+        else:
+            # Return student attendance for specific date
+            try:
+                attendance_date_obj = datetime.strptime(attendance_date, '%Y-%m-%d').date()
+            except ValueError:
+                return JsonResponse({'error': 'Invalid date format'}, status=400)
+            
+            attendance_records = Attendance.objects.filter(
+                subject=subject,
+                student__batch=batch,
+                date=attendance_date_obj
+            ).select_related('student__user').order_by('student__roll_no')
+            
+            if not attendance_records.exists():
+                return JsonResponse({'error': 'No attendance records found for this date'}, status=404)
+            
+            json_data = []
+            for record in attendance_records:
+                student = record.student
+                
+                # Calculate overall attendance percentage for this student
+                total_classes = Attendance.objects.filter(
+                    student=student,
+                    subject=subject
+                ).count()
+                
+                present_classes = Attendance.objects.filter(
+                    student=student,
+                    subject=subject,
+                    status=True
+                ).count()
+                
+                attendance_percentage = (present_classes / total_classes * 100) if total_classes > 0 else 0
+                
+                json_data.append({
+                    'id': student.pk,
+                    'name': f"{student.roll_no} - {student.user.first_name} {student.user.last_name}",
+                    'roll_no': student.roll_no,
+                    'status': str(record.status),
+                    'attendance_percentage': round(attendance_percentage, 1),
+                    'total_classes': total_classes,
+                    'present_classes': present_classes,
+                    'profile_pic': student.user.profile_pic.url if student.user.profile_pic and student.user.profile_pic.name else None
+                })
+            
+            return JsonResponse(json_data, safe=False)
+            
     except Exception as e:
-        return None
+        return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)
 
 
 def admin_view_profile(request):
@@ -880,3 +980,58 @@ def delete_staff_user(request, user_id):
         messages.error(request, f"Could not delete user: {str(e)}")
     
     return redirect(reverse('manage_staff'))
+
+
+# newly created
+
+@csrf_exempt
+def get_attendance_summary(request):
+    """Get attendance summary statistics"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    try:
+        subject_id = request.POST.get('subject')
+        batch_id = request.POST.get('batch')
+        
+        if not subject_id or not batch_id:
+            return JsonResponse({'error': 'Subject and batch are required'}, status=400)
+        
+        subject = get_object_or_404(Subject, pk=subject_id)
+        batch = get_object_or_404(Batch, pk=batch_id)
+        
+        # Get summary statistics
+        total_students = Student.objects.filter(
+            semester=subject.semester,
+            batch=batch
+        ).count()
+        
+        total_classes = Attendance.objects.filter(
+            subject=subject,
+            student__batch=batch
+        ).values('date').distinct().count()
+        
+        total_records = Attendance.objects.filter(
+            subject=subject,
+            student__batch=batch
+        ).count()
+        
+        present_records = Attendance.objects.filter(
+            subject=subject,
+            student__batch=batch,
+            status=True
+        ).count()
+        
+        overall_percentage = (present_records / total_records * 100) if total_records > 0 else 0
+        
+        return JsonResponse({
+            'total_students': total_students,
+            'total_classes': total_classes,
+            'overall_percentage': round(overall_percentage, 1),
+            'total_records': total_records,
+            'present_records': present_records,
+            'absent_records': total_records - present_records
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)

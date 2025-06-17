@@ -1,72 +1,599 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
-{% block custom_css %}
-  <style>
-      .invalid{
-        font-style: italic;
-        font-weight: bold;
-        color: red;
-      }
-      .valid{
-        font-style: italic;
-        font-weight: bold;
-        color: green;
-      }
-  </style>
-{% endblock custom_css %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
 
-{% block content %}
+{% block custom_css %}
+<style>
+    .student-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 20px rgba(40, 167, 69, 0.15);
+    }
+    
+    .header-content h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.8rem;
+    }
+    
+    .header-content p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .professional-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .professional-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0,0,0,0.12);
+    }
+    
+    .card-header-pro {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .card-title-pro {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-body-enhanced {
+        padding: 30px 25px;
+    }
+    
+    .form-group-enhanced {
+        margin-bottom: 25px;
+        position: relative;
+    }
+    
+    .form-label-enhanced {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+    
+    /* CRITICAL: Enhanced form controls with dropdown visibility fix */
+    .form-control-enhanced {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 40px 12px 15px !important;
+        font-size: 1rem;
+        line-height: 1.6 !important;
+        color: #2c3e50 !important;
+        background-color: white !important;
+        width: 100%;
+        transition: all 0.3s ease;
+        vertical-align: middle;
+        min-height: 48px !important;
+        
+        /* Custom dropdown arrow for selects */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px 12px;
+        
+        /* Remove native styling */
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+    
+    /* Input-specific styling */
+    input.form-control-enhanced {
+        background-image: none !important;
+        padding: 12px 15px !important;
+    }
+    
+    /* CRITICAL: Select element fixes for full text visibility */
+    select.form-control-enhanced {
+        height: auto !important;
+        min-height: 48px !important;
+        padding: 14px 40px 14px 15px !important;
+        text-overflow: ellipsis;
+        overflow: visible;
+        white-space: nowrap;
+        box-sizing: border-box;
+    }
+    
+    select.form-control-enhanced option {
+        color: #2c3e50 !important;
+        background-color: white !important;
+        padding: 12px 15px !important;
+        line-height: 1.5 !important;
+        height: auto !important;
+        min-height: 40px !important;
+    }
+    
+    .form-control-enhanced:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        outline: none;
+        transform: none;
+    }
+    
+    /* Enhanced email validation styling */
+    .email-validation-container {
+        position: relative;
+        margin-top: 5px;
+    }
+    
+    .email_error {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 15px;
+        margin-top: 5px;
+        transition: all 0.3s ease;
+        animation: slideIn 0.3s ease;
+    }
+    
+    .email_error.valid {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .email_error.valid::before {
+        content: "✓";
+        margin-right: 6px;
+        font-weight: bold;
+    }
+    
+    .email_error.invalid {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .email_error.invalid::before {
+        content: "✗";
+        margin-right: 6px;
+        font-weight: bold;
+    }
+    
+    /* Loading indicator for email validation */
+    .email-loading {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+        padding: 6px 12px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .email-loading::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        border: 2px solid #e9ecef;
+        border-top: 2px solid #6c757d;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .btn-enhanced {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        min-width: 180px;
+        cursor: pointer;
+    }
+    
+    .btn-enhanced:hover {
+        background: linear-gradient(135deg, #218838, #1e7e34);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .info-panel {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #28a745;
+    }
+    
+    .info-panel h6 {
+        margin: 0 0 8px 0;
+        color: #155724;
+        font-weight: 600;
+    }
+    
+    .info-panel p {
+        margin: 0;
+        color: #155724;
+        font-size: 0.9rem;
+    }
+    
+    .form-footer {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 25px;
+        border-top: 1px solid #e9ecef;
+        text-align: center;
+        position: relative;
+    }
+    
+    .form-footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border-radius: 2px;
+    }
+    
+    .icon-enhanced {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        color: #28a745;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #e74c3c;
+        font-weight: bold;
+    }
+    
+    /* CRITICAL: Hide blue submit button from form template */
+    .btn-primary:not(.btn-enhanced),
+    button[type="submit"]:not(.btn-enhanced),
+    input[type="submit"]:not(.btn-enhanced) {
+        display: none !important;
+    }
+    
+    /* Form validation enhancements */
+    .field-with-validation {
+        position: relative;
+    }
+    
+    .validation-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        z-index: 10;
+    }
+    
+    .validation-icon.valid {
+        color: #28a745;
+    }
+    
+    .validation-icon.invalid {
+        color: #dc3545;
+    }
+    
+    /* Alert styling */
+    .alert-enhanced {
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-top: 10px;
+        border: none;
+        font-weight: 500;
+    }
+    
+    .alert-warning-enhanced {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        color: #856404;
+        border-left: 4px solid #ffc107;
+    }
+    
+    @media (max-width: 768px) {
+        .student-header {
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .header-content h2 {
+            font-size: 1.5rem;
+        }
+        
+        .card-body-enhanced {
+            padding: 20px 15px;
+        }
+        
+        .btn-enhanced {
+            width: 100%;
+        }
+        
+        .form-control-enhanced,
+        select.form-control-enhanced {
+            font-size: 16px !important;
+            min-height: 50px !important;
+            padding: 15px 40px 15px 15px !important;
+        }
+        
+        input.form-control-enhanced {
+            padding: 15px !important;
+        }
+        
+        .form-footer {
+            padding: 20px 15px;
+        }
+    }
+</style>
+{% endblock custom_css %}
 
+{% block content %}
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <!-- general form elements -->
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
+        
+        <!-- Professional Header -->
+        <div class="student-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="header-content">
+                        <h2><i class="fas fa-user-graduate mr-3"></i>{{ page_title }}</h2>
+                        <p>Register new students and manage their academic information</p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-right">
+                    <div class="header-stats">
+                        <i class="fas fa-user-plus" style="font-size: 3rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                
+                <!-- Professional Card -->
+                <div class="professional-card">
+                    <div class="card-header-pro">
+                        <h5 class="card-title-pro">
+                            <i class="fas fa-id-card icon-enhanced"></i>
+                            Student Registration
+                        </h5>
                     </div>
 
-                    {% include "main_app/form_template.html" with messages=messages  form=form button_text="Add Student"%}
+                    <div class="card-body-enhanced">
+                        
+                        <!-- Info Panel -->
+                        <div class="info-panel">
+                            <h6><i class="fas fa-info-circle mr-2"></i>Student Registration</h6>
+                            <p>Please fill in all required information accurately. Email availability will be checked in real-time.</p>
+                        </div>
+
+                        {% include "main_app/form_template.html" with messages=messages form=form %}
+
+                    </div>
+
+                    <!-- Enhanced Footer -->
+                    <div class="form-footer">
+                        <button type="submit" form="studentForm" class="btn-enhanced">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Add Student
+                        </button>
+                    </div>
                 </div>
-                <!-- /.card -->
+
+                <!-- Additional Information Card -->
+                <div class="professional-card mt-4">
+                    <div class="card-header-pro">
+                        <h6 class="card-title-pro">
+                            <i class="fas fa-question-circle icon-enhanced"></i>
+                            Registration Guidelines
+                        </h6>
+                    </div>
+                    <div class="card-body-enhanced">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-lightbulb mr-2 text-warning"></i>Tips</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success mr-2"></i>Use a valid email address</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Provide accurate personal information</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Select the correct department and year</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Double-check all entries before submitting</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-shield-alt mr-2 text-info"></i>Privacy & Security</h6>
+                                <ul class="list-unstyled text-muted">
+                                    <li>• All information is encrypted and secure</li>
+                                    <li>• Email addresses are verified for uniqueness</li>
+                                    <li>• Personal data is protected per privacy policy</li>
+                                    <li>• Access is limited to authorized personnel</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
     </div>
 </section>
 {% endblock content %}
+
 {% block custom_js %}
 <script>
     function validateEmail(email) {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
-    $(document).ready(function(){
-        $("#id_email").keyup(function(){
-            
-            var email = $(this).val()
-            if (validateEmail(email)){
-            $.ajax({
-                url: "{% url 'check_email_availability' %}",
-                type: 'POST',
-                data:{email:email}
-            }).done(function(response){
-                if (response == "True"){
-                    $(".email_error").remove()
-                    $("<span class='invalid email_error'>Email Address Already Exist</span>").insertAfter("#id_email");
-                }
-                else{
-                    $(".email_error").remove()
 
-                    $("<span class='valid email_error'>Email Address Available</span>").insertAfter("#id_email");
+    $(document).ready(function() {
+        console.log('🚀 Initializing enhanced student registration form...');
+        
+        // Enhance form styling
+        $('form input, form select, form textarea').addClass('form-control-enhanced');
+        $('form label').addClass('form-label-enhanced');
+        $('form').attr('id', 'studentForm');
+        
+        // Department dropdown visibility fix
+        $('select').each(function() {
+            $(this).css({
+                'height': 'auto',
+                'min-height': '48px',
+                'line-height': '1.6',
+                'padding': '14px 40px 14px 15px',
+                'vertical-align': 'middle'
+            });
+            
+            $(this).on('change', function() {
+                const selectedText = $(this).find('option:selected').text();
+                $(this).css({
+                    'color': '#2c3e50',
+                    'background-color': 'white'
+                });
+                $(this).attr('title', selectedText);
+            });
+        });
+        
+        // Hide blue submit buttons
+        $('button[type="submit"], input[type="submit"]').each(function() {
+            if (!$(this).hasClass('btn-enhanced')) {
+                $(this).hide();
+                console.log('🚫 Hidden default submit button');
+            }
+        });
+        
+        // Enhanced email validation with professional styling
+        let emailTimeout;
+        let isValidating = false;
+        
+        $("#id_email").on('keyup input', function() {
+            const email = $(this).val().trim();
+            const $emailField = $(this);
+            
+            // Clear previous timeout
+            clearTimeout(emailTimeout);
+            
+            // Remove existing validation messages
+            $(".email_error, .email-loading").remove();
+            
+            if (email === '') {
+                return;
+            }
+            
+            if (validateEmail(email)) {
+                // Show loading indicator
+                isValidating = true;
+                $("<div class='email-loading'>Checking email availability...</div>").insertAfter($emailField);
+                
+                // Debounce the AJAX request
+                emailTimeout = setTimeout(function() {
+                    $.ajax({
+                        url: "{% url 'check_email_availability' %}",
+                        type: 'POST',
+                        data: {
+                            email: email,
+                            csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+                        },
+                        beforeSend: function() {
+                            console.log('📧 Checking email:', email);
+                        }
+                    }).done(function(response) {
+                        $(".email_error, .email-loading").remove();
+                        
+                        if (response == "True") {
+                            $("<div class='email_error invalid'>Email address already exists</div>").insertAfter($emailField);
+                            $emailField.addClass('is-invalid').removeClass('is-valid');
+                        } else {
+                            $("<div class='email_error valid'>Email address is available</div>").insertAfter($emailField);
+                            $emailField.addClass('is-valid').removeClass('is-invalid');
+                        }
+                        isValidating = false;
+                    }).fail(function(xhr, status, error) {
+                        $(".email_error, .email-loading").remove();
+                        $("<div class='alert-enhanced alert-warning-enhanced'>Unable to verify email availability. Please try again.</div>").insertAfter($emailField);
+                        console.error('❌ Email validation error:', error);
+                        isValidating = false;
+                    });
+                }, 500); // 500ms delay for better UX
+            } else {
+                $("<div class='email_error invalid'>Please enter a valid email address</div>").insertAfter($emailField);
+                $emailField.addClass('is-invalid').removeClass('is-valid');
+            }
+        });
+        
+        // Enhanced form validation
+        $('form').on('submit', function(e) {
+            if (isValidating) {
+                e.preventDefault();
+                alert('Please wait while we verify your email address.');
+                return false;
+            }
+            
+            // Check if email is marked as invalid
+            if ($('#id_email').hasClass('is-invalid')) {
+                e.preventDefault();
+                alert('Please correct the email address before submitting.');
+                $('#id_email').focus();
+                return false;
+            }
+        });
+        
+        // Add validation icons
+        $('input[required], select[required]').each(function() {
+            const $field = $(this);
+            const $parent = $field.closest('.form-group-enhanced');
+            
+            $parent.addClass('field-with-validation');
+            
+            $field.on('blur', function() {
+                if ($(this).val().trim() !== '') {
+                    $('<i class="fas fa-check validation-icon valid"></i>').insertAfter($(this));
+                } else {
+                    $('<i class="fas fa-times validation-icon invalid"></i>').insertAfter($(this));
                 }
-            }).fail(function(response){
-                $("<span class='alert alert-warning'>Server Could Not Process This</span>").insertAfter("#id_email");
-            })
-        }
-        })
+            });
+        });
+        
+        console.log('✅ Enhanced student registration form initialized successfully');
     });
 </script>
 {% endblock custom_js %}

@@ -2,24 +2,496 @@
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
 
+{% block custom_css %}
+<style>
+    .batch-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 20px rgba(40, 167, 69, 0.15);
+    }
+    
+    .header-content h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.8rem;
+    }
+    
+    .header-content p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .professional-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .professional-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0,0,0,0.12);
+    }
+    
+    .card-header-pro {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .card-title-pro {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-body-enhanced {
+        padding: 30px 25px;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 4px solid #28a745;
+    }
+    
+    .form-group-enhanced {
+        margin-bottom: 25px;
+    }
+    
+    .form-label-enhanced {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+    
+    /* Enhanced form control styling with department dropdown fix */
+    .form-control-enhanced {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 40px 12px 15px !important;
+        font-size: 1rem;
+        line-height: 1.6 !important;
+        height: 48px !important;
+        color: #2c3e50 !important;
+        background-color: white !important;
+        width: 100%;
+        transition: all 0.3s ease;
+        vertical-align: middle;
+        
+        /* Custom dropdown arrow */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px 12px;
+        
+        /* Remove native styling */
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+    
+    /* Specific fixes for select elements */
+    select.form-control-enhanced {
+        padding-top: 11px !important;
+        padding-bottom: 11px !important;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    
+    .form-control-enhanced:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        outline: none;
+        transform: none;
+    }
+    
+    .help-text-enhanced {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 6px;
+        font-style: italic;
+    }
+    
+    /* Enhanced Add Batch button styling */
+    .btn-enhanced {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 25px;
+        padding: 14px 35px;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        min-width: 180px;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-enhanced::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
+    }
+    
+    .btn-enhanced:hover::before {
+        left: 100%;
+    }
+    
+    .btn-enhanced:hover {
+        background: linear-gradient(135deg, #218838, #1e7e34);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        letter-spacing: 1px;
+    }
+    
+    .btn-enhanced:active {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-enhanced i {
+        margin-right: 10px;
+        font-size: 1rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-enhanced:hover i {
+        transform: scale(1.1);
+    }
+    
+    .info-panel {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #28a745;
+    }
+    
+    .info-panel h6 {
+        margin: 0 0 8px 0;
+        color: #155724;
+        font-weight: 600;
+    }
+    
+    .info-panel p {
+        margin: 0;
+        color: #155724;
+        font-size: 0.9rem;
+    }
+    
+    .form-footer {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 25px;
+        border-top: 1px solid #e9ecef;
+        text-align: center;
+        position: relative;
+    }
+    
+    .form-footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border-radius: 2px;
+    }
+    
+    .icon-enhanced {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        color: #28a745;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #e74c3c;
+        font-weight: bold;
+    }
+    
+    /* Button pulse animation */
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    .btn-enhanced:focus {
+        animation: pulse 0.6s ease-in-out;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-primary[type="submit"]:not(.btn-enhanced) {
+        display: none !important;
+    }
+
+    /* Alternative: Hide by button text */
+    button[type="submit"]:contains("Submit"),
+    input[type="submit"][value="Submit"] {
+        display: none !important;
+    }
+    
+    @media (max-width: 768px) {
+        .batch-header {
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .header-content h2 {
+            font-size: 1.5rem;
+        }
+        
+        .card-body-enhanced {
+            padding: 20px 15px;
+        }
+        
+        .btn-enhanced {
+            width: 100%;
+            padding: 16px 35px;
+            font-size: 1rem;
+            min-width: auto;
+        }
+        
+        .form-control-enhanced {
+            font-size: 16px !important;
+            height: 50px !important;
+            padding: 12px 40px 12px 15px !important;
+        }
+        
+        .form-footer {
+            padding: 20px 15px;
+        }
+    }
+    
+    /* Success state for form submission */
+    .btn-enhanced.success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        animation: pulse 2s infinite;
+    }
+    
+    .btn-enhanced.loading {
+        pointer-events: none;
+        opacity: 0.8;
+    }
+    
+    .btn-enhanced.loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        margin: auto;
+        border: 2px solid transparent;
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
 
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <!-- general form elements -->
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
+        
+        <!-- Professional Header -->
+        <div class="batch-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="header-content">
+                        <h2><i class="fas fa-users mr-3"></i>{{ page_title }}</h2>
+                        <p>Create and manage student batches for your institution</p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-right">
+                    <div class="header-stats">
+                        <i class="fas fa-plus-circle" style="font-size: 3rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                
+                <!-- Professional Card -->
+                <div class="professional-card">
+                    <div class="card-header-pro">
+                        <h5 class="card-title-pro">
+                            <i class="fas fa-calendar-alt icon-enhanced"></i>
+                            Batch Information
+                        </h5>
                     </div>
 
-                    {% include "main_app/form_template.html" with messages=messages  form=form button_text="Add Batch"%}
+                    <div class="card-body-enhanced">
+                        
+                        <!-- Info Panel -->
+                        <div class="info-panel">
+                            <h6><i class="fas fa-info-circle mr-2"></i>Batch Setup</h6>
+                            <p>Batches group students by their admission year and department. Set the start and end years carefully.</p>
+                        </div>
+
+                        {% include "main_app/form_template.html" with messages=messages form=form %}
+
+                    </div>
+
+                    <!-- Enhanced Footer with Styled Add Batch Button -->
+                    <div class="form-footer">
+                        <button type="submit" form="batchForm" class="btn-enhanced">
+                            <i class="fas fa-plus-circle"></i>
+                            Add Batch
+                        </button>
+                    </div>
                 </div>
-                <!-- /.card -->
+
+                <!-- Additional Information Card -->
+                <div class="professional-card mt-4">
+                    <div class="card-header-pro">
+                        <h6 class="card-title-pro">
+                            <i class="fas fa-question-circle icon-enhanced"></i>
+                            Need Help?
+                        </h6>
+                    </div>
+                    <div class="card-body-enhanced">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-lightbulb mr-2 text-warning"></i>Tips</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success mr-2"></i>Use 4-digit years (e.g., 2024)</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Ensure end year > start year</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Select appropriate department</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-examples mr-2 text-info"></i>Examples</h6>
+                                <ul class="list-unstyled text-muted">
+                                    <li>• 2024-2028 (4-year program)</li>
+                                    <li>• 2023-2025 (2-year program)</li>
+                                    <li>• 2024-2027 (3-year program)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
     </div>
 </section>
 {% endblock content %}
+
+{% block custom_js %}
+<script>
+$(document).ready(function() {
+    
+    // Enhance form styling
+    $('form input, form select').addClass('form-control-enhanced');
+    $('form label').addClass('form-label-enhanced');
+    
+    // Set form ID for submit button
+    $('form').attr('id', 'batchForm');
+    
+    // Enhanced department dropdown text visibility fix
+    $('select').each(function() {
+        $(this).css({
+            'line-height': '1.6',
+            'height': '48px',
+            'padding': '11px 40px 11px 15px'
+        });
+        
+        // Handle selection to maintain text visibility
+        $(this).on('change', function() {
+            $(this).css({
+                'color': '#2c3e50',
+                'background-color': 'white'
+            });
+        });
+    });
+    
+    // Enhanced button interactions
+    $('.btn-enhanced').on('click', function(e) {
+        const $btn = $(this);
+        
+        // Add loading state
+        $btn.addClass('loading');
+        
+        // Form validation check (basic example)
+        const form = $('#batchForm')[0];
+        if (form && !form.checkValidity()) {
+            e.preventDefault();
+            $btn.removeClass('loading');
+            
+            // Show validation message
+            $('<div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">')
+                .html('<i class="fas fa-exclamation-triangle mr-2"></i>Please fill in all required fields correctly.')
+                .append('<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>')
+                .insertAfter('.info-panel');
+            
+            return false;
+        }
+        
+        // Success feedback
+        setTimeout(() => {
+            $btn.removeClass('loading').addClass('success');
+        }, 500);
+    });
+    
+    // Add focus enhancement for accessibility
+    $('.btn-enhanced').on('focus', function() {
+        $(this).addClass('focused');
+    }).on('blur', function() {
+        $(this).removeClass('focused');
+    });
+    
+    // Add smooth scroll to form on page load
+    if (window.location.hash === '#form') {
+        $('html, body').animate({
+            scrollTop: $('.professional-card').offset().top - 20
+        }, 800);
+    }
+    
+});
+</script>
+{% endblock custom_js %}

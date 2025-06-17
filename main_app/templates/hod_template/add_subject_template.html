@@ -2,24 +2,616 @@
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
 
+{% block custom_css %}
+<style>
+    .subject-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+    }
+    
+    .header-content h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.8rem;
+    }
+    
+    .header-content p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .subject-stats {
+        display: flex;
+        gap: 20px;
+        margin-top: 15px;
+    }
+    
+    .stat-item {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        flex: 1;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+    
+    .professional-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .professional-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0,0,0,0.12);
+    }
+    
+    .card-header-pro {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .card-title-pro {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-container {
+        padding: 30px 25px;
+    }
+    
+    .info-panel {
+        background: linear-gradient(135deg, #e8f5e8, #d4edda);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #28a745;
+    }
+    
+    .info-panel h6 {
+        margin: 0 0 8px 0;
+        color: #155724;
+        font-weight: 600;
+    }
+    
+    .info-panel p {
+        margin: 0;
+        color: #155724;
+        font-size: 0.9rem;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .section-title {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+    }
+
+    /* ✅ FIXED: Enhanced form styling without conflicts */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    /* ✅ FIXED: Proper select field styling */
+    .form-control, select.form-control {
+        border: 2px solid #e9ecef !important;
+        border-radius: 8px !important;
+        padding: 12px 15px !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        background-color: white !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        /* ✅ FIXED: Remove default browser styling */
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        /* ✅ FIXED: Single custom arrow */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 12px center !important;
+        background-size: 16px 12px !important;
+        /* ✅ FIXED: Ensure full text is visible */
+        min-height: 48px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* ✅ FIXED: Remove arrows from multi-select fields */
+    select[multiple].form-control {
+        background-image: none !important;
+        padding-right: 15px !important;
+    }
+    
+    .form-control:focus, select.form-control:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+        outline: none !important;
+        transform: translateY(-1px);
+    }
+
+    /* ✅ FIXED: Loading button with spinner */
+    .btn-enhanced {
+        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+        border: none !important;
+        border-radius: 25px !important;
+        padding: 12px 30px !important;
+        color: white !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+        min-width: 160px !important;
+        cursor: pointer !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    .btn-enhanced:hover:not(:disabled) {
+        background: linear-gradient(135deg, #5a6fd8, #6a5acd) !important;
+        color: white !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+    }
+
+    .btn-enhanced:disabled {
+        background: #6c757d !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* ✅ LOADING SPINNER STYLES */
+    .button-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: button-loading-spinner 1s ease-in-out infinite;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+
+    .btn-enhanced.loading .button-spinner {
+        display: inline-block;
+    }
+
+    .btn-enhanced.loading .button-text {
+        opacity: 0.8;
+    }
+
+    @keyframes button-loading-spinner {
+        from {
+            transform: rotate(0turn);
+        }
+        to {
+            transform: rotate(1turn);
+        }
+    }
+    
+    .help-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 6px;
+        font-style: italic;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #e74c3c;
+        font-weight: bold;
+    }
+    
+    .alert-enhanced {
+        border-radius: 8px;
+        padding: 15px 20px;
+        border: none;
+        font-weight: 500;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .form-footer {
+        background: #f8f9fa;
+        padding: 20px 25px;
+        border-top: 1px solid #e9ecef;
+        text-align: center;
+    }
+    
+    .icon-enhanced {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        color: #667eea;
+    }
+    
+    @media (max-width: 768px) {
+        .subject-header {
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .subject-stats {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .form-container {
+            padding: 20px 15px;
+        }
+        
+        .btn-enhanced {
+            width: 100% !important;
+        }
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
 
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <!-- general form elements -->
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
+        
+        <!-- Professional Header -->
+        <div class="subject-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="header-content">
+                        <h2><i class="fas fa-book-open mr-3"></i>{{ page_title }}</h2>
+                        <p>Create and configure academic subjects for your institution</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="subject-stats">
+                        <div class="stat-item">
+                            <div class="stat-number"><i class="fas fa-plus"></i></div>
+                            <div class="stat-label">New Subject</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><i class="fas fa-graduation-cap"></i></div>
+                            <div class="stat-label">Academic</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                
+                <!-- Professional Card -->
+                <div class="professional-card">
+                    <div class="card-header-pro">
+                        <h5 class="card-title-pro">
+                            <i class="fas fa-clipboard-list icon-enhanced"></i>
+                            Subject Configuration
+                        </h5>
                     </div>
 
-                    {% include "main_app/form_template.html" with messages=messages  form=form button_text="Add Subject"%}
+                    <div class="form-container">
+                        
+                        <!-- Info Panel -->
+                        <div class="info-panel">
+                            <h6><i class="fas fa-info-circle mr-2"></i>Subject Setup Guide</h6>
+                            <p>Subjects are the core academic components. Configure the subject details, assign instructors, and set the academic parameters.</p>
+                        </div>
+
+                        <!-- Enhanced Form Section -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <i class="fas fa-cog mr-2"></i>Subject Information
+                            </div>
+                            
+                            <!-- Include the original form template but enhance it with JavaScript -->
+                            {% include "main_app/form_template.html" with messages=messages form=form button_text="Add Subject" %}
+                        </div>
+
+                        <!-- Additional Information -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="info-panel" style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); border-left-color: #ffc107;">
+                                    <h6 style="color: #856404;"><i class="fas fa-lightbulb mr-2"></i>Tips</h6>
+                                    <ul style="margin: 0; padding-left: 20px; color: #856404;">
+                                        <li>Choose descriptive subject names</li>
+                                        <li>Assign qualified instructors</li>
+                                        <li>Set appropriate semester levels</li>
+                                        <li>Use standard subject codes</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-panel" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-left-color: #2196f3;">
+                                    <h6 style="color: #0d47a1;"><i class="fas fa-book mr-2"></i>Subject Types</h6>
+                                    <ul style="margin: 0; padding-left: 20px; color: #1565c0;">
+                                        <li><strong>Theory:</strong> Lecture-based subjects</li>
+                                        <li><strong>Practical:</strong> Lab-based subjects</li>
+                                        <li><strong>Mixed:</strong> Combined approach</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <!-- /.card -->
+
+                <!-- Quick Actions Card -->
+                <div class="professional-card mt-4">
+                    <div class="card-header-pro">
+                        <h6 class="card-title-pro">
+                            <i class="fas fa-bolt icon-enhanced"></i>
+                            Quick Actions
+                        </h6>
+                    </div>
+                    <div class="form-container">
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                <a href="{% url 'manage_subject' %}" class="btn btn-outline-primary btn-block">
+                                    <i class="fas fa-list mr-2"></i>View All Subjects
+                                </a>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <a href="{% url 'manage_staff' %}" class="btn btn-outline-info btn-block">
+                                    <i class="fas fa-users mr-2"></i>Manage Faculty
+                                </a>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <a href="{% url 'admin_home' %}" class="btn btn-outline-secondary btn-block">
+                                    <i class="fas fa-home mr-2"></i>Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
     </div>
 </section>
 {% endblock content %}
+
+{% block custom_js %}
+<script>
+$(document).ready(function() {
+    
+    // ✅ ENHANCE FORM FIELDS: Add professional styling to all form elements
+    function enhanceFormFields() {
+        // Style all input fields
+        $('input[type="text"], input[type="email"], input[type="password"], input[type="number"], textarea').each(function() {
+            // Add placeholder if not exists
+            if (!$(this).attr('placeholder')) {
+                const labelText = $(this).closest('.form-group').find('label').text().replace('*', '').trim();
+                if (labelText) {
+                    $(this).attr('placeholder', 'Enter ' + labelText.toLowerCase() + '...');
+                }
+            }
+        });
+        
+        // ✅ FIXED: Add placeholders to specific fields
+        $('#id_semester').attr('placeholder', 'Select semester...');
+        $('#id_subject_type').attr('placeholder', 'Choose subject type...');
+        $('#id_subject_name').attr('placeholder', 'Enter subject name...');
+        $('#id_subject_code').attr('placeholder', 'Enter subject code...');
+        
+        // ✅ FIXED: Add empty first option for dropdowns if not exists
+        $('select').each(function() {
+            const $select = $(this);
+            const fieldName = $select.attr('name');
+            
+            if (fieldName === 'semester' && $select.find('option[value=""]').length === 0) {
+                $select.prepend('<option value="">Select semester...</option>');
+            }
+            
+            if (fieldName === 'subject_type' && $select.find('option[value=""]').length === 0) {
+                $select.prepend('<option value="">Choose subject type...</option>');
+            }
+        });
+        
+        // ✅ FIXED: Style all buttons with spinner capability
+        $('button[type="submit"], input[type="submit"]').each(function() {
+            $(this).addClass('btn-enhanced');
+            
+            // Wrap button text for spinner functionality
+            const buttonText = $(this).html() || $(this).val();
+            if ($(this).is('button') && !$(this).find('.button-text').length) {
+                $(this).html(`
+                    <span class="button-spinner"></span>
+                    <span class="button-text">${buttonText}</span>
+                `);
+            }
+        });
+        
+        // Add required field indicators
+        $('input[required], select[required], textarea[required]').each(function() {
+            const label = $(this).closest('.form-group').find('label');
+            if (label.length && !label.hasClass('required-field')) {
+                label.addClass('required-field');
+            }
+        });
+        
+        // Add icons to labels
+        $('label').each(function() {
+            const labelText = $(this).text().toLowerCase();
+            let icon = 'fas fa-tag';
+            
+            if (labelText.includes('subject name')) icon = 'fas fa-signature';
+            else if (labelText.includes('code')) icon = 'fas fa-code';
+            else if (labelText.includes('type')) icon = 'fas fa-layer-group';
+            else if (labelText.includes('semester')) icon = 'fas fa-calendar';
+            else if (labelText.includes('taught') || labelText.includes('instructor')) icon = 'fas fa-chalkboard-teacher';
+            else if (labelText.includes('department')) icon = 'fas fa-building';
+            
+            if (!$(this).find('i').length) {
+                $(this).prepend(`<i class="${icon} mr-2"></i>`);
+            }
+        });
+    }
+    
+    // ✅ ENHANCE ALERTS: Style Django messages
+    function enhanceAlerts() {
+        $('.alert').each(function() {
+            $(this).addClass('alert-enhanced');
+            
+            // Add icons based on alert type
+            const alertType = $(this).attr('class').match(/alert-(\w+)/);
+            if (alertType) {
+                let icon = 'fas fa-info-circle';
+                switch(alertType[1]) {
+                    case 'success': icon = 'fas fa-check-circle'; break;
+                    case 'danger': case 'error': icon = 'fas fa-exclamation-triangle'; break;
+                    case 'warning': icon = 'fas fa-exclamation-circle'; break;
+                }
+                
+                if (!$(this).find('i').length) {
+                    $(this).prepend(`<i class="${icon} mr-2"></i>`);
+                }
+            }
+        });
+    }
+    
+    // ✅ LOADING SPINNER: Add to form submission
+    function addLoadingSpinner() {
+        $('form').on('submit', function(e) {
+            const $form = $(this);
+            const $btn = $form.find('button[type="submit"], input[type="submit"]');
+            
+            // Basic validation first
+            let hasErrors = false;
+            $form.find('input[required], select[required], textarea[required]').each(function() {
+                const value = $(this).val();
+                
+                if (!value || value.trim() === '') {
+                    hasErrors = true;
+                    $(this).addClass('is-invalid');
+                    $(this).css('border-color', '#dc3545');
+                    
+                    if (!$(this).next('.invalid-feedback').length) {
+                        $(this).after('<div class="invalid-feedback">This field is required.</div>');
+                    }
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).css('border-color', '#28a745');
+                    $(this).next('.invalid-feedback').remove();
+                }
+            });
+            
+            if (hasErrors) {
+                e.preventDefault();
+                
+                // Show error message
+                if (!$('.validation-error-alert').length) {
+                    const errorAlert = `
+                        <div class="alert alert-danger alert-enhanced validation-error-alert">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Please fill in all required fields before submitting.
+                        </div>
+                    `;
+                    $('.form-section').prepend(errorAlert);
+                }
+                
+                // Scroll to first error
+                const firstError = $('.is-invalid').first();
+                if (firstError.length) {
+                    $('html, body').animate({
+                        scrollTop: firstError.offset().top - 100
+                    }, 500);
+                    firstError.focus();
+                }
+                
+                return false;
+            } else {
+                // Remove error alert
+                $('.validation-error-alert').remove();
+                
+                // ✅ SHOW LOADING SPINNER
+                if ($btn.is('button')) {
+                    $btn.addClass('loading');
+                    $btn.find('.button-text').text('Adding Subject...');
+                    $btn.prop('disabled', true);
+                } else {
+                    $btn.val('Adding Subject...').prop('disabled', true);
+                }
+                
+                // Re-enable button after delay for server-side errors
+                setTimeout(() => {
+                    if ($btn.is('button')) {
+                        $btn.removeClass('loading');
+                        $btn.find('.button-text').text('Add Subject');
+                        $btn.prop('disabled', false);
+                    } else {
+                        $btn.val('Add Subject').prop('disabled', false);
+                    }
+                }, 8000);
+            }
+        });
+        
+        // Remove error styling on input
+        $('input, select, textarea').on('input change', function() {
+            $(this).removeClass('is-invalid');
+            $(this).css('border-color', '');
+            $(this).next('.invalid-feedback').remove();
+            $('.validation-error-alert').remove();
+        });
+    }
+    
+    // ✅ SMOOTH ANIMATIONS: Add focus effects
+    function addAnimations() {
+        $('.form-control').on('focus', function() {
+            $(this).closest('.form-group').addClass('focused');
+        }).on('blur', function() {
+            $(this).closest('.form-group').removeClass('focused');
+        });
+        
+        // Auto-dismiss success messages
+        $('.alert-success').delay(5000).fadeOut('slow');
+    }
+    
+    // Initialize all enhancements
+    setTimeout(() => {
+        enhanceFormFields();
+        enhanceAlerts();
+        addLoadingSpinner();
+        addAnimations();
+    }, 100);
+});
+</script>
+{% endblock custom_js %}

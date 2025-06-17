@@ -2,20 +2,341 @@
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
 
+{% block custom_css %}
+<style>
+    .academic-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 20px rgba(0, 123, 255, 0.15);
+    }
+    
+    .header-content h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.8rem;
+    }
+    
+    .header-content p {
+        margin: 8px 0 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .professional-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .professional-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0,0,0,0.12);
+    }
+    
+    .card-header-pro {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .card-title-pro {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-body-enhanced {
+        padding: 30px 25px;
+    }
+    
+    .form-group-enhanced {
+        margin-bottom: 25px;
+    }
+    
+    .form-label-enhanced {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+    }
+    
+    /* CRITICAL: Department dropdown text visibility fix */
+    .form-control-enhanced {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 40px 12px 15px !important;
+        font-size: 1rem;
+        line-height: 1.6 !important;
+        color: #2c3e50 !important;
+        background-color: white !important;
+        width: 100%;
+        transition: all 0.3s ease;
+        vertical-align: middle;
+        min-height: 48px !important;
+        
+        /* Custom dropdown arrow */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px 12px;
+        
+        /* Remove native styling */
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+    
+    /* CRITICAL: Select element fixes for full text visibility */
+    select.form-control-enhanced {
+        height: auto !important;
+        min-height: 48px !important;
+        padding: 14px 40px 14px 15px !important;
+        text-overflow: ellipsis;
+        overflow: visible;
+        white-space: nowrap;
+        box-sizing: border-box;
+    }
+    
+    select.form-control-enhanced option {
+        color: #2c3e50 !important;
+        background-color: white !important;
+        padding: 12px 15px !important;
+        line-height: 1.5 !important;
+        height: auto !important;
+        min-height: 40px !important;
+    }
+    
+    .form-control-enhanced:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        outline: none;
+        transform: none;
+    }
+    
+    .btn-enhanced {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        min-width: 180px;
+        cursor: pointer;
+    }
+    
+    .btn-enhanced:hover {
+        background: linear-gradient(135deg, #0056b3, #004085);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    }
+    
+    .info-panel {
+        background: linear-gradient(135deg, #cce7ff, #b3d9ff);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #007bff;
+    }
+    
+    .info-panel h6 {
+        margin: 0 0 8px 0;
+        color: #003d82;
+        font-weight: 600;
+    }
+    
+    .info-panel p {
+        margin: 0;
+        color: #003d82;
+        font-size: 0.9rem;
+    }
+    
+    .form-footer {
+        background: #f8f9fa;
+        padding: 20px 25px;
+        border-top: 1px solid #e9ecef;
+        text-align: center;
+    }
+    
+    .icon-enhanced {
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
+        color: #007bff;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #e74c3c;
+        font-weight: bold;
+    }
+    
+    /* CRITICAL: Hide blue submit button from form template */
+    .btn-primary:not(.btn-enhanced),
+    button[type="submit"]:not(.btn-enhanced),
+    input[type="submit"]:not(.btn-enhanced) {
+        display: none !important;
+    }
+    
+    @media (max-width: 768px) {
+        .academic-header {
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .card-body-enhanced {
+            padding: 20px 15px;
+        }
+        
+        .btn-enhanced {
+            width: 100%;
+        }
+        
+        .form-control-enhanced,
+        select.form-control-enhanced {
+            font-size: 16px !important;
+            min-height: 50px !important;
+            padding: 15px 40px 15px 15px !important;
+        }
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
+        
+        <!-- Professional Header -->
+        <div class="academic-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="header-content">
+                        <h2><i class="fas fa-graduation-cap mr-3"></i>{{ page_title }}</h2>
+                        <p>Define academic years and their structure for your institution</p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-right">
+                    <div class="header-stats">
+                        <i class="fas fa-calendar-plus" style="font-size: 3rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                
+                <!-- Professional Card -->
+                <div class="professional-card">
+                    <div class="card-header-pro">
+                        <h5 class="card-title-pro">
+                            <i class="fas fa-calendar-alt icon-enhanced"></i>
+                            Academic Year Details
+                        </h5>
                     </div>
 
-                    {% include "main_app/form_template.html" with messages=messages form=form button_text="Add Academic Year"%}
+                    <div class="card-body-enhanced">
+                        
+                        <!-- Info Panel -->
+                        <div class="info-panel">
+                            <h6><i class="fas fa-info-circle mr-2"></i>Academic Year Setup</h6>
+                            <p>Configure the academic year structure for different departments and programs.</p>
+                        </div>
+
+                        {% include "main_app/form_template.html" with messages=messages form=form %}
+
+                    </div>
+
+                    <!-- Enhanced Footer -->
+                    <div class="form-footer">
+                        <button type="submit" form="academicYearForm" class="btn-enhanced">
+                            <i class="fas fa-plus-circle mr-2"></i>
+                            Add Academic Year
+                        </button>
+                    </div>
                 </div>
+
+                <!-- Additional Information Card -->
+                <div class="professional-card mt-4">
+                    <div class="card-header-pro">
+                        <h6 class="card-title-pro">
+                            <i class="fas fa-question-circle icon-enhanced"></i>
+                            Guidelines
+                        </h6>
+                    </div>
+                    <div class="card-body-enhanced">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-lightbulb mr-2 text-warning"></i>Tips</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success mr-2"></i>Select the correct department</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Use sequential year numbers</li>
+                                    <li><i class="fas fa-check text-success mr-2"></i>Verify program duration</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-examples mr-2 text-info"></i>Examples</h6>
+                                <ul class="list-unstyled text-muted">
+                                    <li>• 1st Year, 2nd Year, 3rd Year</li>
+                                    <li>• Final Year, Pre-Final Year</li>
+                                    <li>• Foundation, Intermediate, Advanced</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 </section>
 {% endblock content %}
+
+{% block custom_js %}
+<script>
+$(document).ready(function() {
+    // Enhance form styling
+    $('form input, form select').addClass('form-control-enhanced');
+    $('form label').addClass('form-label-enhanced');
+    $('form').attr('id', 'academicYearForm');
+    
+    // Department dropdown visibility fix
+    $('select').each(function() {
+        $(this).css({
+            'height': 'auto',
+            'min-height': '48px',
+            'line-height': '1.6',
+            'padding': '14px 40px 14px 15px',
+            'vertical-align': 'middle'
+        });
+        
+        $(this).on('change', function() {
+            $(this).css({
+                'color': '#2c3e50',
+                'background-color': 'white'
+            });
+        });
+    });
+    
+    // Hide blue submit buttons
+    $('button[type="submit"], input[type="submit"]').each(function() {
+        if (!$(this).hasClass('btn-enhanced')) {
+            $(this).hide();
+        }
+    });
+});
+</script>
+{% endblock custom_js %}

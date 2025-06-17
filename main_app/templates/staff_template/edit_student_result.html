@@ -1,137 +1,795 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block custom_css %}
+<style>
+    .update-results-card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        border: none;
+    }
+    .update-results-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    }
+    
+    .page-header {
+        background: #17a2b8;
+        border-radius: 15px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(23, 162, 184, 0.2);
+    }
+    
+    .stats-grid {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .stats-box {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .stats-box:hover {
+        background: #f8f9fa;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .stats-box h4 {
+        margin: 0 0 5px 0;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #17a2b8;
+    }
+    
+    .stats-box small {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        padding: 0 20px;
+    }
+    
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        position: relative;
+    }
+    
+    .step:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 20px;
+        right: -50%;
+        width: 100%;
+        height: 2px;
+        background: #e9ecef;
+        z-index: 1;
+    }
+    
+    .step.active:not(:last-child)::after {
+        background: #28a745;
+    }
+    
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+        z-index: 2;
+        position: relative;
+    }
+    
+    .step.active .step-circle {
+        background: #28a745;
+        color: white;
+    }
+    
+    .step.completed .step-circle {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .step-label {
+        font-size: 0.9rem;
+        text-align: center;
+        color: #6c757d;
+        font-weight: 500;
+    }
+    
+    .step.active .step-label {
+        color: #28a745;
+        font-weight: 600;
+    }
+    
+    .form-section {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-section.active {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40,167,69,.25);
+    }
+    
+    .form-section h5 {
+        color: #343a40;
+        margin-bottom: 20px;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+    
+    .enhanced-select, .enhanced-input {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: white;
+        min-height: 48px;
+    }
+    
+    .enhanced-select:focus, .enhanced-input:focus {
+        border-color: #17a2b8;
+        box-shadow: 0 0 0 0.2rem rgba(23,162,184,.25);
+        outline: none;
+    }
+    
+    .enhanced-select:disabled, .enhanced-input:disabled {
+        background-color: #f8f9fa;
+        border-color: #e9ecef;
+        color: #6c757d;
+    }
+    
+    .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 8px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .result-display {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+        display: none;
+    }
+    
+    .result-display.show {
+        display: block;
+        animation: fadeInUp 0.5s ease;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .update-btn {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 30px;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(23,162,184,0.2);
+        min-width: 160px;
+    }
+    
+    .update-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #138496, #117a8b);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(23,162,184,0.4);
+    }
+    
+    .update-btn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 8px;
+    }
+    
+    #alertContainer {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 400px;
+        z-index: 9999;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .step-indicator {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .step:not(:last-child)::after {
+            display: none;
+        }
+    }
+</style>
+{% endblock custom_css %}
+
 {% block content %}
+
+<div id="alertContainer"></div>
 
 <section class="content">
     <div class="container-fluid">
+        
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="text-white mb-2">
+                        <i class="fas fa-edit mr-2"></i>{{page_title}}
+                    </h4>
+                    <p class="text-white-75 mb-0">Update and modify student examination results</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-grid">
+                        <div class="stats-box">
+                            <h4 id="subjectCount">--</h4>
+                            <small>Subjects</small>
+                        </div>
+                        <div class="stats-box">
+                            <h4 id="studentCount">--</h4>
+                            <small>Students</small>
+                        </div>
+                        <div class="stats-box">
+                            <h4 id="resultStatus">--</h4>
+                            <small>Status</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step active" id="step1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Select Subject & Batch</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Choose Student</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Update Results</div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-12">
-                <!-- general form elements -->
-                    <form method="POST">
+                <div class="update-results-card card">
+
+                    {% if messages %}
+                        <div class="messages-container mb-3">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <h6>Please correct the following errors:</h6>
+                            <ul class="mb-0">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>
+                                            {% if field == '__all__' %}
+                                                {{ error }}
+                                            {% else %}
+                                                {{ form.fields.field.label|default:field }}: {{ error }}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="POST" id="updateResultForm">
                         {% csrf_token %}
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
-                    </div>
+                        
+                        <div class="form-section active" id="section1">
+                            <h5><i class="fas fa-filter mr-2"></i>Step 1: Select Subject and Batch</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="id_subject"><i class="fas fa-book mr-1"></i>Subject</label>
+                                        {{ form.subject }}
+                                        {% if form.subject.errors %}
+                                            <div class="text-danger">{{ form.subject.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="id_batch_year"><i class="fas fa-users mr-1"></i>Batch Year</label>
+                                        {{ form.batch_year }}
+                                        {% if form.batch_year.errors %}
+                                            <div class="text-danger">{{ form.batch_year.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-       
-                    <!-- /.card-header -->
-                    <!-- form start -->
-                    <div class="card-body">
+                        <div class="form-section" id="section2">
+                            <h5><i class="fas fa-user-graduate mr-2"></i>Step 2: Select Student</h5>
+                            <div class="form-group">
+                                <label for="id_student"><i class="fas fa-user mr-1"></i>Student</label>
+                                {{ form.student }}
+                                {% if form.student.errors %}
+                                    <div class="text-danger">{{ form.student.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
 
+                        <div class="form-section" id="section3">
+                            <div id="theoryFields" style="display: none;">
+                                <h6 class="text-primary mt-4">Update Theory Marks</h6>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="id_ca1">CA1 Score</label>
+                                            {{ form.ca1 }}
+                                            {% if form.ca1.errors %}
+                                                <div class="text-danger">{{ form.ca1.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="id_ca2">CA2 Score</label>
+                                            {{ form.ca2 }}
+                                            {% if form.ca2.errors %}
+                                                <div class="text-danger">{{ form.ca2.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="id_ca3">CA3 Score</label>
+                                            {{ form.ca3 }}
+                                            {% if form.ca3.errors %}
+                                                <div class="text-danger">{{ form.ca3.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="id_end_sem">End Semester</label>
+                                            {{ form.end_sem }}
+                                            {% if form.end_sem.errors %}
+                                                <div class="text-danger">{{ form.end_sem.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="labFields" style="display: none;">
+                                <h6 class="text-success mt-4">Update Lab Marks</h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="id_pca1">PCA1 Score</label>
+                                            {{ form.pca1 }}
+                                            {% if form.pca1.errors %}
+                                                <div class="text-danger">{{ form.pca1.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="id_pca2">PCA2 Score</label>
+                                            {{ form.pca2 }}
+                                            {% if form.pca2.errors %}
+                                                <div class="text-danger">{{ form.pca2.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="id_end_sem_practical">End Sem Practical</label>
+                                            {{ form.end_sem_practical }}
+                                            {% if form.end_sem_practical.errors %}
+                                                <div class="text-danger">{{ form.end_sem_practical.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                     
-
-                 {{ form }}
-
-                    </div>
-                    <!-- /.card-body -->
-
-                    <div class="card-footer">
-                        <button type="submit" id='update_result' class="btn btn-primary btn-block">Update Result</button>
-               
-                    </div>
-                </form>
+                        <div class="card-footer bg-white">
+                            <div class="text-center">
+                                <button type="submit" id="update_result" class="btn update-btn" disabled>
+                                    <i class="fas fa-save mr-2"></i>
+                                    <span class="button-text">Update Result</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <!-- /.card -->
-
             </div>
         </div>
     </div>
 </section>
 {% endblock content %}
 
-
 {% block custom_js %}
 <script>
-    $(document).ready(function () {
-        $("#id_subject").change(function () {
-            fetchStudents();
-            });
-            $("#id_Batch_year").change(function () {
-                fetchStudents();
-                });
-   $("#id_student").change(function () {
-    fetch_student_result();
-                });
-                $("#id_exam").hide()
-                $("#id_test").hide()
-                $("#update_result").hide()
-                $('label[for="id_test"]').hide();
-                $('label[for="id_exam"]').hide();
-        function fetchStudents(){
-            var subject = $("#id_subject").val()
-            var Batch = $("#id_Batch_year").val()
-            $("#id_student").html(null)
-            if (Batch.length  == 0 || subject.length == 0 || Batch < 1 || subject < 1){
-                return false;
+$(document).ready(function() {
+    let currentStep = 1;
+    
+    function showAlert(message, type, autoHide = true) {
+        const alertId = 'alert_' + Date.now();
+        const alertClass = `alert-${type}`;
+        const iconClass = type === 'success' ? 'fa-check-circle' : 
+                         type === 'warning' ? 'fa-exclamation-triangle' : 
+                         type === 'danger' ? 'fa-times-circle' : 'fa-info-circle';
+        
+        const alertHtml = `
+            <div id="${alertId}" class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                <i class="fas ${iconClass} mr-2"></i>${message}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        `;
+        
+        $('#alertContainer').append(alertHtml);
+        
+        if (autoHide) {
+            setTimeout(() => {
+                $(`#${alertId}`).fadeOut(function() { $(this).remove(); });
+            }, 5000);
+        }
+    }
+    
+    function updateStep(step) {
+        currentStep = step;
+        
+        for (let i = 1; i <= 3; i++) {
+            const $step = $(`#step${i}`);
+            $step.removeClass('active completed');
+            
+            if (i < step) {
+                $step.addClass('completed');
+            } else if (i === step) {
+                $step.addClass('active');
             }
-            $.ajax({
-                url: "{% url 'get_students' %}",
-                type: 'POST',
-                data: {
-                    subject: subject,
-                    Batch:Batch
+        }
+        
+        $('.form-section').removeClass('active');
+        $(`#section${step}`).addClass('active');
+    }
+    
+    function styleFormElements() {
+        $('#id_subject, #id_batch_year, #id_student').addClass('enhanced-select form-control');
+        $('#id_ca1, #id_ca2, #id_ca3, #id_end_sem, #id_pca1, #id_pca2, #id_end_sem_practical').addClass('enhanced-input form-control');
+        
+        $('#id_student').prop('disabled', true);
+        $('#subjectCount').text($('#id_subject option').length - 1);
+    }
+    
+    function fetchStudents() {
+        const subject = $("#id_subject").val();
+        const batch = $("#id_batch_year").val();
+        
+        $("#id_student").html('<option value="">Loading students...</option>');
+        $("#id_student").prop('disabled', true);
+        
+        if (!subject || !batch) {
+            $("#id_student").html('<option value="">Select subject and batch first</option>');
+            showAlert("Please select both subject and batch", "warning");
+            return false;
+        }
+        
+        const csrftoken = $('[name=csrfmiddlewaretoken]').val();
+        
+        $.ajax({
+            url: "{% url 'get_students' %}",
+            type: 'POST',
+            data: {
+                subject: subject,
+                batch: batch,
+                csrfmiddlewaretoken: csrftoken
+            },
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            timeout: 10000
+        }).done(function(response) {
+            if (!Array.isArray(response)) {
+                showAlert("Invalid response format", "danger");
+                return;
+            }
+            
+            if (response.length < 1) {
+                $("#id_student").html('<option value="">No students found</option>');
+                showAlert("No students found for this combination", "warning");
+            } else {
+                let options = '<option value="">Select Student</option>';
+                for (let i = 0; i < response.length; i++) {
+                    options += `<option value="${response[i]['id']}">${response[i]['name']}</option>`;
                 }
-            }).done(function (response) {
-                var json_data = JSON.parse(response)
-                if (json_data.length < 1) {
-                    alert("No data to display")
+                $("#id_student").html(options);
+                $("#id_student").prop('disabled', false);
+                
+                $('#studentCount').text(response.length);
+                updateStep(2);
+                showAlert(`Found ${response.length} students`, "success");
+            }
+        }).fail(function(xhr, status, error) {
+            $("#id_student").html('<option value="">Error loading students</option>');
+            
+            let errorMsg = "Error loading students";
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+                errorMsg = xhr.responseJSON.error;
+            } else if (xhr.responseText) {
+                errorMsg += ": " + xhr.responseText;
+            }
+            
+            showAlert(errorMsg, "danger");
+        });
+    }
+    
+    function fetch_student_result() {
+        const student = $("#id_student").val();
+        const subject = $("#id_subject").val();
+        
+        resetResultForm();
+        
+        if (!student || !subject) {
+            return false;
+        }
+        
+        $.ajax({
+            url: "{% url 'fetch_student_result' %}",
+            type: 'POST',
+            data: {
+                subject: subject,
+                student: student
+            },
+            timeout: 10000
+        }).done(function(response) {
+            const subjectType = response.subject_type || 'Mixed';
+            showFieldsBasedOnSubjectType(subjectType, response);
+            
+            $("#update_result").prop('disabled', false);
+            $('#resultStatus').text('Loaded');
+            updateStep(3);
+            
+            showAlert("Results loaded successfully", "success");
+            
+        }).fail(function(xhr, status, error) {
+            showAlert("Error loading student results", "danger");
+            $('#resultStatus').text('Error');
+        });
+    }
+
+    function showFieldsBasedOnSubjectType(subjectType, response) {
+        const isTheorySubject = subjectType.toLowerCase() === 'theory';
+        const isLabSubject = subjectType.toLowerCase() === 'lab' || subjectType.toLowerCase() === 'practical';
+        
+        $("#theoryFields, #labFields").hide();
+        
+        if (isTheorySubject) {
+            $("#theoryFields").show();
+            if (response && response.theory) {
+                populateTheoryResults(response.theory);
+            }
+        } else if (isLabSubject) {
+            $("#labFields").show();
+            if (response && response.lab) {
+                populateLabResults(response.lab);
+            }
+        } else {
+            $("#theoryFields, #labFields").show();
+            if (response) {
+                if (response.theory) populateTheoryResults(response.theory);
+                if (response.lab) populateLabResults(response.lab);
+            }
+        }
+    }
+
+    function populateTheoryResults(theoryData) {
+        $("#id_ca1").val(theoryData.ca1 || '');
+        $("#id_ca2").val(theoryData.ca2 || '');
+        $("#id_ca3").val(theoryData.ca3 || '');
+        $("#id_end_sem").val(theoryData.end_sem || '');
+    }
+
+    function populateLabResults(labData) {
+        $("#id_pca1").val(labData.pca1 || '');
+        $("#id_pca2").val(labData.pca2 || '');
+        $("#id_end_sem_practical").val(labData.end_sem_practical || '');
+    }
+
+    function resetResultForm() {
+        $("#id_ca1, #id_ca2, #id_ca3, #id_end_sem, #id_pca1, #id_pca2, #id_end_sem_practical").val('');
+        $("#theoryFields, #labFields").hide();
+        $("#update_result").prop('disabled', true);
+        $('#resultStatus').text('--');
+    }
+
+    $("#id_subject, #id_batch_year").change(function() {
+        updateStep(2);
+        fetchStudents();
+    });
+    
+    $("#id_student").change(function() {
+        fetch_student_result();
+    });
+    
+    $("#updateResultForm").submit(function(e) {
+        e.preventDefault();
+        
+        const $form = $(this);
+        const $btn = $("#update_result");
+        const originalText = $btn.html();
+        
+        const subject = $("#id_subject").val();
+        const student = $("#id_student").val();
+        
+        if (!subject) {
+            showAlert("Please select a subject", "warning");
+            return false;
+        }
+        
+        if (!student) {
+            showAlert("Please select a student", "warning");
+            return false;
+        }
+        
+        let hasValues = false;
+        const markFields = ['#id_ca1', '#id_ca2', '#id_ca3', '#id_end_sem', '#id_pca1', '#id_pca2', '#id_end_sem_practical'];
+        
+        markFields.forEach(function(fieldId) {
+            const value = $(fieldId).val();
+            if (value && value.trim() !== '') {
+                hasValues = true;
+            }
+        });
+        
+        if (!hasValues) {
+            showAlert("Please enter at least one mark to update", "warning");
+            return false;
+        }
+        
+        $btn.html('<span class="loading-spinner"></span>Updating...').prop('disabled', true);
+        
+        const formData = new FormData();
+        formData.append('csrfmiddlewaretoken', $('[name=csrfmiddlewaretoken]').val());
+        
+        $form.find('input, select').each(function() {
+            const $field = $(this);
+            const name = $field.attr('name');
+            const value = $field.val();
+            
+            if (name && value) {
+                formData.append(name, value);
+            }
+        });
+        
+        $.ajax({
+            url: "{% url 'staff_edit_result' %}",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                const $response = $(response);
+                const hasSuccess = $response.find('.alert-success').length > 0;
+                const hasError = $response.find('.alert-danger, .alert-error').length > 0;
+                
+                if (hasSuccess) {
+                    showAlert("Results updated successfully!", "success");
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else if (hasError) {
+                    let errorMessages = [];
+                    $response.find('.alert-danger, .alert-error').each(function() {
+                        errorMessages.push($(this).text().trim());
+                    });
+                    showAlert("Errors: " + errorMessages.join(', '), "danger");
                 } else {
-                    var div_data = "<option>Select Student</option>"
-
-                    for (key in json_data) {
-                        div_data += "<option value='" + json_data[key]['id'] + "'>" + json_data[key]['name'] + " </option>"
-                    }
-             
-                    $("#id_student").html(div_data)
+                    showAlert("Update completed", "info");
                 }
-            }).fail(function (response) {
-                alert("Error in fetching students")
-            })
-               }
-
-               function fetch_student_result(){
-                var student = $("#id_student").val()
-                var subject = $("#id_subject").val()
-                $("#id_test").val(null)
-                $("#id_exam").val(null)
-                $("#id_exam").hide()
-                $("#update_result").hide()
-                $("#id_test").hide()
-                $('label[for="id_test"]').hide();
-                $('label[for="id_exam"]').hide();
-                if (student.length  == 0 || subject.length == 0 || student < 1 || subject < 1){
-                    return false;
+            },
+            error: function(xhr, status, error) {
+                let errorMsg = "Error updating results";
+                
+                if (xhr.status === 400) {
+                    errorMsg = "Form validation failed. Please check your inputs.";
+                } else if (xhr.status === 403) {
+                    errorMsg = "Access denied. Please refresh and try again.";
+                } else if (xhr.status === 500) {
+                    errorMsg = "Server error. Please try again later.";
                 }
-                $.ajax({
-                    url: "{% url 'fetch_student_result' %}",
-                    type: 'POST',
-                    data: {
-                        subject: subject,
-                        student:student
-                    }
-                }).done(function (response) {
-                    if (response == 'False') {
-                        alert("No data to display")
-                    } else {
-                        var json_data = JSON.parse(response)
-                        
-                            $("#id_test").val(json_data['test'])
-                            $("#id_exam").val(json_data['exam'])
-                            $("#id_exam").show()
-                            $("#id_test").show()
-                            $("#update_result").show()
-                            $('label[for="id_test"]').show();
-                            $('label[for="id_exam"]').show();
-
-                    }
-                }).fail(function (response) {
-                    alert("Error in fetching students")
-                })
-               }
-
-    })
+                
+                showAlert(errorMsg, "danger");
+            },
+            complete: function() {
+                $btn.html(originalText).prop('disabled', false);
+            }
+        });
+    });
+    
+    styleFormElements();
+    showAlert("Please select a subject and batch to begin", "info");
+});
 </script>
 {% endblock custom_js %}

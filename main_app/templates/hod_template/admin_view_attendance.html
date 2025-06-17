@@ -1,207 +1,670 @@
 {% extends 'main_app/base.html' %}
 {% load static %}
 {% block page_title %}{{page_title}}{% endblock page_title %}
+
 {% block custom_css %}
 <style>
-.attendance_div_red{
-    padding: 10px;
-    background: #f44336;
-    border: 3px solid white;
-    text-align: center;
-    color: #fff;
-    border-radius: 30px;
-    box-shadow: 1px 1px 1px grey;
-    margin: 5px;
-}
-.attendance_div_green{
-    padding: 10px;
-    background: #4CAF50;
-    border: 3px solid white;
-    text-align: center;
-    color: #fff;
-    border-radius: 30px;
-    box-shadow: 1px 1px 1px grey;
-    margin: 5px;
-}
+    /* ✅ PROFESSIONAL: Muted color scheme */
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #34495e;
+        --accent-color: #3498db;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --light-bg: #f8f9fa;
+        --border-color: #dee2e6;
+        --text-muted: #6c757d;
+    }
+
+    .attendance-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border-radius: 10px;
+        padding: 25px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(44, 62, 80, 0.15);
+    }
+    
+    .header-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .stat-item {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+    
+    .professional-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .card-header-pro {
+        background: var(--light-bg);
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .card-title-pro {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin: 0;
+    }
+    
+    .card-body-pro {
+        padding: 20px;
+    }
+    
+    .form-group-pro {
+        margin-bottom: 20px;
+    }
+    
+    .form-label-pro {
+        font-weight: 500;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.9rem;
+    }
+    
+    .form-control-pro {
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        background-color: white;
+        width: 100%;
+    }
+    
+    .form-control-pro:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.15rem rgba(52, 152, 219, 0.15);
+        outline: none;
+    }
+    
+    .btn-professional {
+        background: var(--accent-color);
+        border: none;
+        border-radius: 6px;
+        padding: 10px 20px;
+        color: white;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .btn-professional:hover {
+        background: #2980b9;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+    }
+    
+    .btn-professional:disabled {
+        background: var(--text-muted);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .alert-professional {
+        border-radius: 6px;
+        padding: 12px 15px;
+        border: none;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    
+    .alert-success-pro {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid var(--success-color);
+    }
+    
+    .alert-danger-pro {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid var(--danger-color);
+    }
+    
+    .results-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-top: 20px;
+        border: 1px solid var(--border-color);
+        display: none;
+    }
+    
+    .results-container.show {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .student-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1px solid #f1f3f4;
+        transition: background-color 0.2s ease;
+    }
+    
+    .student-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .student-item:last-child {
+        border-bottom: none;
+    }
+    
+    .student-avatar-pro {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 12px;
+        border: 2px solid var(--border-color);
+    }
+    
+    .student-details {
+        flex: 1;
+    }
+    
+    .student-name-pro {
+        font-weight: 500;
+        color: var(--primary-color);
+        margin-bottom: 3px;
+        font-size: 0.95rem;
+    }
+    
+    .student-meta {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+    
+    .status-indicator {
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        text-align: center;
+        min-width: 70px;
+    }
+    
+    .status-present {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-absent {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .summary-box {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        display: none;
+    }
+    
+    .summary-box.show {
+        display: block;
+        animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .summary-stat {
+        text-align: center;
+        background: white;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .summary-stat-number {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 3px;
+    }
+    
+    .summary-stat-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .loading-text {
+        display: inline-block;
+        margin-left: 8px;
+    }
+    
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 0.8s ease-in-out infinite;
+        display: inline-block;
+        margin-right: 6px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+        .header-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .student-item {
+            flex-direction: column;
+            text-align: center;
+            gap: 8px;
+        }
+        
+        .attendance-header {
+            padding: 20px 15px;
+        }
+        
+        .card-body-pro {
+            padding: 15px;
+        }
+    }
 </style>
 {% endblock custom_css %}
+
 {% block content %}
 
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <!-- general form elements -->
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">{{page_title}}</h3>
-                    </div>
-
-                    <!-- /.card-header -->
-                    <!-- form start -->
-                    <div class="card-body">
-
-
-
-                        <div class="form-group">
-                            <label>Subject</label>
-                            <select name="subject" class="form-control" id='subject'>
-                                <option value="">----</option>
-                                {% for subject in subjects  %}
-                                <option value="{{subject.id}}">{{subject.name}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Batch</label>
-                            <select name="Batch" class="form-control" id='Batch'>
-                                <option value="">----</option>
-                                {% for Batch in Batchs  %}
-                                <option value="{{Batch.id}}">{{Batch}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group"><div  style="display: none;" class="alert alert-danger" id='error_attendance'></div>
-                                <div class="alert alert-success" id='success_attendance' style="display: none;"></div>
-                             <button type="button" id='fetch_attendance' class="btn btn-primary btn-block">Fetch
-                                    Attendance</button>
-                        </div>
-                    <!-- /.card-body -->
-                    
-                        
-                               
-                            <div class="form-group" style="display: none;" id="attendance_block">
-                            <div class="form-group">
-                                <label>Attendance Date</label>
-                                <select name="attendance_date" id='attendance_date' class="form-control">
-                               
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                
-                            <div id="fetch_student_block" style="display: none;">
-                                <button type="button" id='fetch_student' class="btn btn-primary btn-block">Fetch Students</button>
-
-
-                            </div>
-                            <div id='student_data' class="card-footer">
-
-                            </div>
-                        </div>
-                    </div>  
+        
+        <!-- Professional Header -->
+        <div class="attendance-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3 style="margin: 0; font-weight: 600;">{{ page_title }}</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 0.95rem;">
+                        View and analyze student attendance records across subjects and batches
+                    </p>
                 </div>
-                <!-- /.card -->
+                <div class="col-md-4">
+                    <div class="header-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ total_subjects }}</div>
+                            <div class="stat-label">Subjects</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">{{ total_batches }}</div>
+                            <div class="stat-label">Batches</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">{{ recent_records }}</div>
+                            <div class="stat-label">Recent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Filter Selection -->
+        <div class="professional-card">
+            <div class="card-header-pro">
+                <h6 class="card-title-pro">
+                    <i class="fas fa-filter mr-2"></i>Filter Options
+                </h6>
+            </div>
+            <div class="card-body-pro">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group-pro">
+                            <label class="form-label-pro" for="subject">
+                                <i class="fas fa-book mr-1"></i>Subject
+                            </label>
+                            <select name="subject" class="form-control-pro" id="subject">
+                                <option value="">Choose Subject...</option>
+                                {% for subject in subjects %}
+                                <option value="{{ subject.pk }}">
+                                    {{ subject.subject_name }} ({{ subject.subject_code }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group-pro">
+                            <label class="form-label-pro" for="batch">
+                                <i class="fas fa-users mr-1"></i>Batch
+                            </label>
+                            <select name="batch" class="form-control-pro" id="batch">
+                                <option value="">Choose Batch...</option>
+                                {% for batch in batches %}
+                                <option value="{{ batch.pk }}">
+                                    {{ batch.department.dept_name }} ({{ batch.start_year }}-{{ batch.end_year }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group-pro">
+                            <label class="form-label-pro">&nbsp;</label>
+                            <button type="button" id="fetch_attendance" class="btn-professional" style="width: 100%;">
+                                <i class="fas fa-search mr-2"></i>
+                                <span class="btn-text">Load Dates</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div id="error_message" class="alert-professional alert-danger-pro" style="display: none;">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span class="message-text"></span>
+                </div>
+                
+                <div id="success_message" class="alert-professional alert-success-pro" style="display: none;">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span class="message-text"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Selection -->
+        <div id="date_selection" class="professional-card" style="display: none;">
+            <div class="card-header-pro">
+                <h6 class="card-title-pro">
+                    <i class="fas fa-calendar mr-2"></i>Select Date
+                </h6>
+            </div>
+            <div class="card-body-pro">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group-pro">
+                            <label class="form-label-pro" for="attendance_date">
+                                <i class="fas fa-calendar-day mr-1"></i>Attendance Date
+                            </label>
+                            <select name="attendance_date" id="attendance_date" class="form-control-pro">
+                                <option value="">Select Date...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group-pro">
+                            <label class="form-label-pro">&nbsp;</label>
+                            <button type="button" id="load_students" class="btn-professional" style="width: 100%;">
+                                <i class="fas fa-users mr-2"></i>
+                                <span class="btn-text">Load Students</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div id="summary_stats" class="summary-box">
+            <h6 style="margin: 0 0 10px 0; color: var(--primary-color); font-weight: 600;">
+                <i class="fas fa-chart-bar mr-2"></i>Summary Statistics
+            </h6>
+            <div class="summary-grid">
+                <div class="summary-stat">
+                    <div class="summary-stat-number" id="total_students">0</div>
+                    <div class="summary-stat-label">Students</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-number" id="total_classes">0</div>
+                    <div class="summary-stat-label">Classes</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-number" id="overall_percent">0%</div>
+                    <div class="summary-stat-label">Overall</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-number" id="present_count">0</div>
+                    <div class="summary-stat-label">Present</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-number" id="absent_count">0</div>
+                    <div class="summary-stat-label">Absent</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Results -->
+        <div id="student_results" class="results-container">
+            <div class="card-header-pro">
+                <h6 class="card-title-pro">
+                    <i class="fas fa-list mr-2"></i>Student Attendance Details
+                </h6>
+            </div>
+            <div id="student_data" style="padding: 0;">
+                <!-- Dynamic content -->
             </div>
         </div>
     </div>
 </section>
 {% endblock content %}
 
-
 {% block custom_js %}
 <script>
-    $(document).ready(function () {
-        $("#fetch_attendance").click(function(){
-            var subject = $("#subject").val()
-            var Batch = $("#Batch").val()
-            $("#student_data").html("")
-
-            if (Batch.length < 1 || subject.length < 1){
-                $("#error_attendance").html("Kindly Choose Both Subject and Batch")
-                $("#attendance_block").hide()
-                $("#error_attendance").show()
-                return false
-            }
-            $.ajax({
-                url: "{% url 'get_attendance' %}",
-                type: 'POST',
-                data:{
-                    subject:subject,
-                    Batch:Batch
-                }
-            
-            }
-
-            ).done(function(response){
-                var json_data = JSON.parse(response)
-                if (json_data.length > 0){
-
-                    var html = "";
-                    for (key in json_data){
-                        html += "<option value='"+json_data[key]['id']+"'>"+json_data[key]['attendance_date']+"</option>"
-                    }
-                    $("#attendance_date").html(html)
-                    $("#error_attendance").hide()
-                    $("#error_attendance").html("")
-                    $("#attendance_block").show()  
-                    $("#fetch_student_block").show()
-                }else{
-                    $("#error_attendance").html("No Attendance Date Found For Specified Data")
-                    $("#error_attendance").show()
-                    $("#attendance_date").html("")
-                    $("#attendance_block").hide()
-                    $("#student_data").html("")
-
-
-                }
-            }).fail(function(response){
-                alert("Error While Fetching Data")
-                $("#error_attendance").html("")
-                $("#error_attendance").show()
-                $("#attendance_block").hide()
-                $("#student_data").html("")
-
-
-            })
-        })
-
-        $("#fetch_student").click(function () {
-            var attendance_date = $("#attendance_date").val()
-            var Batch = $("#Batch").val()
-            var subject = $("#subject").val()
-            $("#student_data").html(null)
-if (attendance_date.length  == 0){
-    alert("Please Choose A Date");
-    $("#save_attendance").hide()
-
-    return false;
-}
-            $.ajax({
-                url: "{% url 'get_admin_attendance' %}",
-                type: 'POST',
-                data: {
-                    attendance_date_id:attendance_date,
-                    Batch:Batch,
-                    subject:subject
-                }
-            }).done(function (response) {
-                var json_data = JSON.parse(response)
-                if (json_data.length < 1) {
-                    alert("No data to display")
-
-                } else {
-
-                    var div_data = "<hr/><div class='form-group'></div><div class='form-group'> <label>Student Attendance</label><div class='row'>"
-
-                    for (key in json_data) {
-                            if (json_data[key]['status'] == 'True'){
-                                div_data += "<div class='col-lg-3 attendance_div_green'><b>"+ json_data[key]['name'] + "</b><br/>Present</div>" 
-                            }else{
+$(document).ready(function() {
+    
+    function showMessage(type, text) {
+        $(`#${type}_message .message-text`).text(text);
+        $(`#${type}_message`).slideDown();
         
-                                div_data += "<div class='col-lg-3 attendance_div_red'><b>"+ json_data[key]['name'] + "</b><br/>Absent</div>"
-                            }
-                        }
-                       // div_data += "<div class='col-lg-3'><div class='form-check custom-control custom-checkbox'><input type='checkbox' class='custom-control-input' " + (json_data[key]['status'] ? "checked='checked'" : "")+" name='student_data[]' value=" + json_data[key]['id'] + " id='checkbox" + json_data[key]['id'] + "' /> <label for='checkbox" + json_data[key]['id'] + "' class='custom-control-label'>" + json_data[key]['name']  + (json_data[key]['status'] ? " [Present] " : " [Absent] ")+"</label></div> </div>"
-                    div_data += "</div></div>"
-                    $("#student_data").html(div_data)
-                }
-            }).fail(function (response) {
-                alert("Error in fetching students")
-            })
-
-        })
-       
-    })
+        if (type === 'success') {
+            setTimeout(() => $(`#${type}_message`).slideUp(), 4000);
+        }
+    }
+    
+    function hideMessages() {
+        $('#error_message, #success_message').slideUp();
+    }
+    
+    function setLoading(buttonId, loading) {
+        const $btn = $(`#${buttonId}`);
+        const $text = $btn.find('.btn-text');
+        
+        if (loading) {
+            $btn.prop('disabled', true);
+            $text.html('<span class="spinner"></span>Loading...');
+        } else {
+            $btn.prop('disabled', false);
+            $text.text(buttonId === 'fetch_attendance' ? 'Load Dates' : 'Load Students');
+        }
+    }
+    
+    // Load attendance dates
+    $("#fetch_attendance").click(function() {
+        const subject = $("#subject").val();
+        const batch = $("#batch").val();
+        
+        hideMessages();
+        $("#date_selection, #student_results, #summary_stats").slideUp();
+        
+        if (!subject || !batch) {
+            showMessage('error', 'Please select both Subject and Batch');
+            return;
+        }
+        
+        setLoading('fetch_attendance', true);
+        
+        $.ajax({
+            url: "{% url 'get_admin_attendance' %}",
+            type: 'POST',
+            data: {
+                subject: subject,
+                batch: batch,
+                csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+            },
+            timeout: 10000
+        }).done(function(response) {
+            if (Array.isArray(response) && response.length > 0) {
+                let options = '<option value="">Select Date...</option>';
+                response.forEach(function(item) {
+                    options += `<option value="${item.id}">${item.attendance_date} - ${item.present_count}P/${item.absent_count}A (${item.percentage}%)</option>`;
+                });
+                
+                $("#attendance_date").html(options);
+                $("#date_selection").slideDown();
+                showMessage('success', `Found ${response.length} attendance records`);
+                
+                // Load summary
+                loadSummary(subject, batch);
+                
+            } else {
+                showMessage('error', 'No attendance records found');
+            }
+        }).fail(function(xhr) {
+            let error = 'Error loading data';
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+                error = xhr.responseJSON.error;
+            }
+            showMessage('error', error);
+        }).always(function() {
+            setLoading('fetch_attendance', false);
+        });
+    });
+    
+    // Load students
+    $("#load_students").click(function() {
+        const date = $("#attendance_date").val();
+        const subject = $("#subject").val();
+        const batch = $("#batch").val();
+        
+        hideMessages();
+        
+        if (!date) {
+            showMessage('error', 'Please select a date');
+            return;
+        }
+        
+        setLoading('load_students', true);
+        
+        $.ajax({
+            url: "{% url 'get_admin_attendance' %}",
+            type: 'POST',
+            data: {
+                subject: subject,
+                batch: batch,
+                attendance_date: date,
+                csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+            }
+        }).done(function(response) {
+            if (Array.isArray(response) && response.length > 0) {
+                let html = '';
+                
+                response.forEach(function(student) {
+                    const statusClass = student.status === 'True' ? 'status-present' : 'status-absent';
+                    const statusText = student.status === 'True' ? 'Present' : 'Absent';
+                    const avatar = student.profile_pic || "{% static 'img/default-avatar.png' %}";
+                    
+                    html += `
+                        <div class="student-item">
+                            <img src="${avatar}" class="student-avatar-pro" alt="Profile" 
+                                 onerror="this.src='{% static 'img/default-avatar.png' %}'">
+                            <div class="student-details">
+                                <div class="student-name-pro">${student.name}</div>
+                                <div class="student-meta">
+                                    Overall: ${student.attendance_percentage}% (${student.present_classes}/${student.total_classes})
+                                </div>
+                            </div>
+                            <div class="status-indicator ${statusClass}">${statusText}</div>
+                        </div>
+                    `;
+                });
+                
+                $("#student_data").html(html);
+                $("#student_results").addClass('show');
+                showMessage('success', `Loaded ${response.length} student records`);
+                
+            } else {
+                showMessage('error', 'No student data found');
+            }
+        }).fail(function() {
+            showMessage('error', 'Error loading student data');
+        }).always(function() {
+            setLoading('load_students', false);
+        });
+    });
+    
+    // Load summary statistics
+    function loadSummary(subject, batch) {
+        $.ajax({
+            url: "{% url 'get_attendance_summary' %}",
+            type: 'POST',
+            data: {
+                subject: subject,
+                batch: batch,
+                csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+            }
+        }).done(function(response) {
+            $('#total_students').text(response.total_students);
+            $('#total_classes').text(response.total_classes);
+            $('#overall_percent').text(response.overall_percentage + '%');
+            $('#present_count').text(response.present_records);
+            $('#absent_count').text(response.absent_records);
+            $('#summary_stats').addClass('show');
+        });
+    }
+    
+    // Reset on change
+    $("#subject, #batch").change(function() {
+        hideMessages();
+        $("#date_selection, #student_results, #summary_stats").slideUp();
+        $("#attendance_date").html('<option value="">Select Date...</option>');
+    });
+});
 </script>
 {% endblock custom_js %}
