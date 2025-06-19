@@ -88,7 +88,7 @@ def student_view_attendance(request):
         
         try:
             # Validate subject exists and belongs to student's semester
-            subject = get_object_or_404(Subject, id=subject_id, semester=student.semester)
+            subject = get_object_or_404(Subject, subject_id=subject_id, semester=student.semester)
             
             # Parse dates
             start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")

@@ -130,3 +130,101 @@
     /* ... (keeping all the visual styling but removing debug-related styles) */
 </style>
 {% endblock custom_css %}
+
+{% block content %}
+<div class="attendance-header">
+  <h2 style="margin: 0;">My Attendance</h2>
+  <p style="margin: 8px 0 0 0;">Filter and view your attendance records</p>
+</div>
+
+<div class="professional-card">
+  <div class="card-header-pro">
+    <h6 class="card-title-pro">Filter Options</h6>
+  </div>
+  <div class="card-body-enhanced">
+    <form id="attendanceForm">
+      {% csrf_token %}
+      <div class="form-group-enhanced">
+        <label class="form-label-enhanced">Subject</label>
+        <select name="subject" class="subject-select" required>
+          <option value="">Select Subject...</option>
+          {% for subject in subjects %}
+          <option value="{{ subject.pk }}">{{ subject.subject_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group-enhanced">
+        <label class="form-label-enhanced">Start Date</label>
+        <input type="date" name="start_date" class="clean-input" required>
+      </div>
+      <div class="form-group-enhanced">
+        <label class="form-label-enhanced">End Date</label>
+        <input type="date" name="end_date" class="clean-input" required>
+      </div>
+      <button type="submit" class="btn-enhanced">View Attendance</button>
+    </form>
+    <div id="errorMessage" style="color: #dc3545; margin-top: 12px; display: none;"></div>
+  </div>
+</div>
+
+<div id="attendanceResults" class="professional-card" style="display: none;">
+  <div class="card-header-pro">
+    <h6 class="card-title-pro">Attendance Records</h6>
+  </div>
+  <div id="student_data" style="padding: 20px;">
+    <!-- Results will be inserted here by JavaScript -->
+  </div>
+</div>
+{% endblock content %}
+
+{% block custom_js %}
+<script>
+document.getElementById('attendanceForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  const errorMessage = document.getElementById('errorMessage');
+  errorMessage.textContent = '';
+  errorMessage.style.display = 'none';
+
+  fetch("{% url 'student_view_attendance' %}", {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    const resultsContainer = document.getElementById('attendanceResults');
+    const studentData = document.getElementById('student_data');
+    if (Array.isArray(data) && data.length > 0) {
+      let html = '<table style="width: 100%; border-collapse: collapse;"><thead><tr><th style="text-align: left; padding: 8px;">Date</th><th style="text-align: left; padding: 8px;">Status</th></tr></thead><tbody>';
+      data.forEach(record => {
+        const statusClass = record.status ? 'status-present' : 'status-absent';
+        const statusText = record.status ? 'Present' : 'Absent';
+        html += `<tr>
+          <td style="padding: 8px;">${record.date}</td>
+          <td style="padding: 8px;" class="${statusClass}">${statusText}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      studentData.innerHTML = html;
+      resultsContainer.style.display = 'block';
+    } else if (data.error) {
+      errorMessage.textContent = data.error;
+      errorMessage.style.display = 'block';
+      resultsContainer.style.display = 'none';
+    } else {
+      studentData.innerHTML = '<div style="color: #6c757d; text-align: center; padding: 16px;">No attendance records found</div>';
+      resultsContainer.style.display = 'block';
+    }
+  })
+  .catch(error => {
+    errorMessage.textContent = 'Error fetching attendance data';
+    errorMessage.style.display = 'block';
+    document.getElementById('attendanceResults').style.display = 'none';
+  });
+});
+</script>
+{% endblock custom_js %}
