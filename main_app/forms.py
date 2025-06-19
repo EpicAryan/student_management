@@ -406,7 +406,10 @@ class EditResultForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(EditResultForm, self).__init__(*args, **kwargs)
+        student_queryset = kwargs.pop('student_queryset', None)
+        super().__init__(*args, **kwargs)
+        if student_queryset is not None:
+            self.fields['student'].queryset = student_queryset
         
     def clean(self):
         """Custom validation to ensure at least one mark is provided"""
