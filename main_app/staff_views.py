@@ -14,6 +14,7 @@ from .forms import *
 from .models import *
 
 def staff_home(request):
+    print("staff here")
     professor = get_object_or_404(Professor, user=request.user)
     total_students = Student.objects.filter(department=professor.department).count()
     total_leave = LeaveReportStaff.objects.filter(professor=professor).count()
@@ -61,7 +62,7 @@ def staff_take_attendance(request):
 @csrf_exempt
 def get_students(request):
     subject_id = request.POST.get('subject')
-    batch_id = request.POST.get('batch')
+    batch_id = request.POST.get("batch_year") or request.POST.get("batch")
     date_str = request.POST.get('date')
     
     try:
@@ -993,13 +994,13 @@ def get_todays_attendance_count(request):
 
 def staff_edit_result(request):
     try:
-        professor = get_object_or_404(Professor, user=request.user)
+            professor = get_object_or_404(Professor, user=request.user)
     except Professor.DoesNotExist:
         messages.error(request, "Professor profile not found. Please contact admin.")
         return redirect('staff_home')
-    
+        
     form = EditResultForm()
-    
+    form.fields['subject'].queryset = Subject.objects.filter(taught_by=professor)
     context = {
         'form': form,
         'page_title': 'Update Student Results',
@@ -1008,7 +1009,28 @@ def staff_edit_result(request):
     }
 
     if request.method == 'POST':
-        form = EditResultForm(request.POST)
+        subject_id = request.POST.get('subject')
+        batch_year_id = request.POST.get('batch_year')
+        
+        if subject_id and batch_year_id:
+            try:
+                subject = Subject.objects.get(subject_id=subject_id)
+                batch = Batch.objects.get(batch_id=batch_year_id)
+                student_queryset = Student.objects.filter(
+                    semester=subject.semester,
+                    batch=batch
+                ).select_related('user').order_by('roll_no')
+                
+            except (Subject.DoesNotExist, Batch.DoesNotExist):
+                messages.error(request, "Invalid subject or batch selected")
+                return render(request, 'staff_template/staff_edit_result.html', context)
+        else:
+            messages.error(request, "Please select both subject and batch")
+            return render(request, 'staff_template/staff_edit_result.html', context)
+        
+        form = EditResultForm(request.POST, student_queryset=student_queryset)
+        form.fields['subject'].queryset = Subject.objects.filter(taught_by=professor)
+        
         
         if form.is_valid():
             try:
@@ -1018,6 +1040,7 @@ def staff_edit_result(request):
                     
                     saved_something = False
                     
+                    # Theory fields processing
                     theory_fields = ['ca1', 'ca2', 'ca3', 'end_sem']
                     theory_data = {}
                     
@@ -1039,6 +1062,7 @@ def staff_edit_result(request):
                         
                         saved_something = True
                     
+                    # Lab fields processing
                     lab_fields = ['pca1', 'pca2', 'end_sem_practical']
                     lab_data = {}
                     
@@ -1082,4 +1106,4 @@ def staff_edit_result(request):
 
         context['form'] = form
 
-    return render(request, 'staff_template/staff_edit_result.html', context)
+    return render(request, 'staff_template/edit_student_result.html', context)
